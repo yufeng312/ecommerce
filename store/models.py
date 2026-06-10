@@ -1,4 +1,5 @@
 from django.db import models
+from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Category(models.Model):
@@ -25,20 +26,26 @@ class Product(models.Model):
     name = models.CharField(max_length=255, unique=True, null=False, blank=False)
     slug = models.SlugField(max_length=255, unique=True)
     image = models.ImageField(upload_to='images/', blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default='0.00')
     description = models.TextField()
-    number = models.CharField(max_length=255, unique=True , blank=False, null=False)
+    product_code = models.CharField(max_length=255, unique=True , blank=False, null=False)
     stock = models.PositiveIntegerField(default=0)
     score = models.FloatField(default=3.0, choices=SCORE_CHOICES)
     is_discount = models.BooleanField(default=False)
     discount = models.DecimalField(
         max_digits=3,
         decimal_places=2,
-        default=1.00,
-        validators=[MinValueValidator(0.00), MaxValueValidator(1.00)]
+        default='1.00',
+        validators=[MinValueValidator(Decimal('0.00')), MaxValueValidator(Decimal('1.00'))]
     )
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+
+    @property
+    def discount_price(self):
+        if self.is_discount:
+            return round(self.price * self.discount, 2)
+        return self.price
 
     class Meta:
         db_table = 'Product'
