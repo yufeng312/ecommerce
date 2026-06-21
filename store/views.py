@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Product, Category
 from django.http import Http404
+
+from .models import Product, Category
 
 def index(request, category_slug=None):
     categories = Category.objects.all()
@@ -15,12 +16,6 @@ def index(request, category_slug=None):
         'active_category': active_category,
     }
     return render(request, 'store/home.html', context)
-
-def all_products(request):
-    return {
-        'products': Product.objects.all(),
-        'categories': Category.objects.all()
-    }
 
 def product_detail(request, category, product):
     product = get_object_or_404(Product, slug=product)
