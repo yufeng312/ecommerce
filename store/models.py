@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
+# 商品类型模型
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True)
@@ -16,6 +18,7 @@ class Category(models.Model):
         return self.name
 
 
+# 商品模型
 class Product(models.Model):
     SCORE_CHOICES = [
         (0.0, '0.0分'), (0.5, '0.5分'), (1.0, '1.0分'), (1.5, '1.5分'), 
@@ -34,16 +37,20 @@ class Product(models.Model):
     score = models.FloatField(default=3.0, choices=SCORE_CHOICES)
     is_discount = models.BooleanField(default=False)
     discount = models.DecimalField(
-        max_digits=3,
-        decimal_places=2,
-        default='1.00',
-        validators=[MinValueValidator(Decimal('0.00')), MaxValueValidator(Decimal('1.00'))]
+        max_digits=3,  # 最大3位数字
+        decimal_places=2,  # 小数点后获取2位
+        default='1.00',  
+        # 最大值为1.00,最小值为0.00
+        validators=[MinValueValidator(Decimal('0.00')), MaxValueValidator(Decimal('1.00'))]  
     )
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
 
     @property
     def discount_price(self):
+        """
+        获取商品打折后的价格
+        """
         if self.is_discount:
             return round(self.price * self.discount, 2)
         return self.price
@@ -52,6 +59,7 @@ class Product(models.Model):
         db_table = 'Product'
         verbose_name = '商品'
         verbose_name_plural = '商品'
+        # 按创建时间降序排列
         ordering = ['-create_time']
     
     def __str__(self):

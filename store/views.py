@@ -4,6 +4,9 @@ from django.http import Http404
 from .models import Product, Category
 
 def index(request, category_slug=None):
+    """
+    商城首页
+    """
     categories = Category.objects.all()
     products = Product.objects.all()
     active_category = None
@@ -18,6 +21,9 @@ def index(request, category_slug=None):
     return render(request, 'store/home.html', context)
 
 def product_detail(request, category, product):
+    """
+    商品详情页
+    """
     product = get_object_or_404(Product, slug=product)
     if product.stock > 0:
         category = get_object_or_404(Category, slug=category)
