@@ -53,12 +53,16 @@
                         </div>
                         <!-- Product actions-->
                         <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="#">加入购物车</a></div>
+                            <div class="text-center"><button class="btn btn-outline-dark mt-auto add-button" value='{{product.id}}' data-url='{% url 'basket:basket_add' %}'>加入购物车</button></div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
-    </section>  
+    </section>
+
+    {% csrf_token %}
+
+    <script src='{% static 'js/scripts.js' %}'></script>
 {% endblock content %}

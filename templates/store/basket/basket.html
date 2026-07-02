@@ -1,7 +1,106 @@
 {% extends "../base.html" %}
 {% load static %}
-{% block title %}{{ product.name }}{% endblock %}
+{% block title %}购物车详情页{% endblock %}
 
 {% block content %}
-basket
-{% endblock %}
+    <header class="bg-dark py-5">
+        <div class="container px-4 px-lg-5 my-5">
+            <div class="text-center text-white">
+                <h1 class="display-4 fw-bolder">我的购物车</h1>
+                <p class="lead fw-normal text-white-50 mb-0">管理您挑选的商品</p>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5 bg-light">
+        <div class="container px-4 px-lg-5">
+            {% if basket %}
+            <div class="row gx-4 gx-lg-5" id="basket-content-wrapper">
+                <div class="col-lg-8">
+                    {% for item in basket %}
+                    {% with product=item.product %}
+                        <div class="card mb-3 border-0 shadow-sm product-item" data-index="{{ product.id }}" data-url="{% url 'basket:basket_update' %}">
+                            <div class="row g-0 align-items-center p-3">
+                                <div class="col-4 col-md-2 text-center">
+                                    <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 90px; object-fit: cover;" />
+                                </div>
+                                
+                                <div class="col-8 col-md-4 px-3">
+                                    <h5 class="fw-bold mb-1">
+                                        <a href="{% url 'store:product_detail' product.category.slug product.slug %}" class="text-reset text-decoration-none hover-link">{{ product.name }}</a>
+                                    </h5>
+                                    <div class="text-muted small">
+                                        {% if product.is_discount %}
+                                            <div class="mb-1">
+                                                单价: <span class="text-danger fw-bold product-price">¥{{ product.discount_price }}</span> 
+                                                <span class="text-decoration-line-through text-muted ms-1" style="font-size: 0.85rem;">¥{{ product.price }}</span>
+                                            </div>
+                                            <div class="text-success" style="font-size: 0.85rem;">
+                                                <i class="bi-tags-fill me-1"></i>已降 ¥{{ item.saved_amount|default:"--" }} / 件
+                                            </div>
+                                        {% else %}
+                                            <div>单价: <span class="text-dark fw-bold product-price">¥{{ product.price }}</span></div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="col-6 col-md-3 mt-3 mt-md-0 d-flex flex-column align-items-start align-items-md-center justify-content-center">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <button class="btn btn-sm btn-outline-secondary btn-minus" type="button">-</button>
+                                        <input class="form-control form-control-sm text-center mx-2 quantity-input" type="number" value="{{ item.qty }}" style="max-width: 4rem" min="1" data-index="{{ product.id }}" />
+                                        <button class="btn btn-sm btn-outline-secondary btn-plus" type="button">+</button>
+                                    </div>
+                                    <div class="small text-muted mt-1">
+                                        合计: <span class="text-dark fw-bold" id="subtotal-{{ product.id }}">¥{{ item.total_price }}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-6 col-md-3 mt-3 mt-md-0 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-button" data-url="{% url 'basket:basket_delete' %}" data-index="{{ product.id }}">
+                                        <i class="bi-trash"></i> 删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 2rem;">
+                        <h4 class="fw-bolder mb-4">订单摘要</h4>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">商品种类</span>
+                            <span id="basket-qty-summary" class="fw-bold">{{ basket.category_count }} 种</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">运费</span>
+                            <span class="text-success fw-bold">包邮</span>
+                        </div>
+                        <hr class="my-3">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="fw-bold fs-5">商品总价</span>
+                            <span class="fw-bolder fs-4 text-danger" id="total-price">¥{{ basket.get_total_price }}</span>
+                        </div>
+                        <button class="btn btn-dark w-100 py-2 fw-bold" type="button">前往结算</button>
+                        <a href="{% url 'store:index' %}" class="btn btn-outline-dark w-100 py-2 mt-2 small">继续购物</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="text-center py-5 {% if basket %}d-none{% endif %}" id="basket-empty-wrapper">
+                <div class="mb-4">
+                    <i class="bi-cart-x text-muted" style="font-size: 5rem;"></i>
+                </div>
+                <h3 class="fw-bolder">您的购物车空空如也</h3>
+                <p class="text-muted">精美的商品正在货架上等待着您呢！</p>
+                <a href="{% url 'store:index' %}" class="btn btn-dark mt-3 px-4 py-2">立即去选购</a>
+            </div>
+        </div>
+    </section>
+
+    {% csrf_token %}
+
+    <script src="{% static "js/basket.js" %}"></script>
+
+{% endblock content %}

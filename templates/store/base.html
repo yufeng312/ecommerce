@@ -33,7 +33,7 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <button class="btn btn-outline-dark" type="submit">
+                    <a href='{% url 'basket:basket_summary' %}' class="btn btn-outline-dark">
                         <i class="bi-cart-fill me-1"></i>
                         购物车
                         {% with total_qty=basket|length %}
@@ -45,7 +45,7 @@
                                 {% endif %}
                             </span>
                         {% endwith %}
-                    </button>
+                    </a>
                 </form>
             </div>
         </div>
