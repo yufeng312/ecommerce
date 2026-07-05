@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'store.apps.StoreConfig',
     'basket.apps.BasketConfig',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -100,3 +101,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 配置User模型
+AUTH_USER_MODEL = 'account.User'
