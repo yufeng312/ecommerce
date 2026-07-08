@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.mail import send_mail
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,  
                                         PermissionsMixin)
 
@@ -47,6 +48,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'User'
         verbose_name = '用户'
         verbose_name_plural = '用户'
+
+    def email_user(self, subject, message):
+        send_mail(
+            subject,
+            message,
+            '1@1.com',
+            [self.email],
+            fail_silently=False
+        )
 
     def __str__(self):
         return self.email

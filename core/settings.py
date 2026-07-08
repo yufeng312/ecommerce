@@ -104,3 +104,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 配置User模型
 AUTH_USER_MODEL = 'account.User'
+LOGIN_REDIRECT_URL = '/account/dashboard/'
+LOGIN_URL = '/account/login/'
+
+# 配置email后端
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

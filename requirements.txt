@@ -3,5 +3,6 @@ Django==3.2
 pillow==10.4.0
 pymysql==1.1.2
 pytz==2026.2
+six==1.17.0
 sqlparse==0.5.5
 typing-extensions==4.13.2
