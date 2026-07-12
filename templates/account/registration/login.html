@@ -84,6 +84,9 @@
                         <div class="form-group">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label class="mb-0">{{ form.password.label }} <span class="text-danger small">*</span></label>
+                                <a href="{% url 'account:password_reset' %}" class="text-muted small text-decoration-none">
+                                    忘记密码？
+                                </a>
                                 </div>
                             <div class="mt-2">
                                 {{ form.password }}
