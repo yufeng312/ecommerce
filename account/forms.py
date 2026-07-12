@@ -1,13 +1,24 @@
 import re
 
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+
 from .models import User
+
+
+class UserLoginForm(AuthenticationForm):
+    username = forms.CharField(widget=forms.TextInput(
+        attrs={'placeholder': '用户名', 'id': 'login-username'}
+    ))
+    password = forms.CharField(widget=forms.PasswordInput(
+        attrs={'placeholder': '密码', 'id': 'login-password'}
+    ))
 
 
 class RegistrationForm(forms.ModelForm):
 
     username = forms.CharField(
-        label='请输入用户名', 
+        label='用户名', 
         min_length=4, 
         max_length=30, 
         help_text='必填项, 长度在4-30个字符之间',
@@ -79,3 +90,44 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('两次输入的密码不一致')
         return password2
 
+
+class UserEditForm(forms.ModelForm):
+
+    email = forms.EmailField(
+        label='电子邮箱(无法修改)', 
+        max_length=100, 
+        disabled=True,
+    )
+    username = forms.CharField(
+        label='用户名', 
+        min_length=4, 
+        max_length=30, 
+        help_text='必填项, 长度在4-30个字符之间',
+        widget=forms.TextInput(
+            attrs={'placeholder': '请输入用户名..'}
+        )
+    )
+    avatar = forms.ImageField(label='头像', required=False)
+    phone = forms.RegexField(
+        r'^1[3-9]\d{9}$',
+        label='手机号',
+        required=False,
+        error_messages={
+            'invalid': '请输入正确的手机号'
+        },
+        widget=forms.TextInput(
+            attrs={'placeholder': '请填写手机号..'}
+        )
+    )
+    description = forms.CharField(
+        label='个人介绍',
+        max_length=300,
+        required=False,
+        widget=forms.Textarea(
+            attrs={'placeholder': '介绍一下自己吧..'}
+        )
+    )
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'avatar', 'phone', 'description')
