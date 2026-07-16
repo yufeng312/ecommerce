@@ -66,6 +66,18 @@
             </div>
         </div>
     </nav>
+
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show fw-bold" role="alert">
+                <i class="bi bi-info-circle-fill me-2"></i> {{ message.message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
     {% block content %}{% endblock content %}
     <!-- Footer-->
     <footer class="py-5 bg-dark mt-auto">

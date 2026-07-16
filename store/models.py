@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -52,7 +52,8 @@ class Product(models.Model):
         获取商品打折后的价格
         """
         if self.is_discount:
-            return round(self.price * self.discount, 2)
+            # 精度保留两位小数,ROUND_HALF_UP采用传统的四舍五入
+            return (self.price * self.discount).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         return self.price
 
     class Meta:

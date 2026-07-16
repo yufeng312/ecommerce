@@ -80,9 +80,9 @@
                         <hr class="my-3">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <span class="fw-bold fs-5">商品总价</span>
-                            <span class="fw-bolder fs-4 text-danger" id="total-price">¥{{ basket.get_total_price }}</span>
+                            <span class="fw-bolder fs-4 text-danger" id="total-price">¥{{ basket.payment_price }}</span>
                         </div>
-                        <button class="btn btn-dark w-100 py-2 fw-bold" type="button">前往结算</button>
+                        <a href="{% url 'order:order_confirm' %}" class="btn btn-dark w-100 py-2 fw-bold">前往结算</a>
                         <a href="{% url 'store:index' %}" class="btn btn-outline-dark w-100 py-2 mt-2 small">继续购物</a>
                     </div>
                 </div>

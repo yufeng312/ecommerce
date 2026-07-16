@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 
-from .models import Basket
+from .basket import Basket
 from store.models import Product
 
 def basket_summary(request):
@@ -56,7 +56,7 @@ def basket_delete(request):
         data = json.loads(request.body)
         product_id = data.get('product_id')
         basket.delete(product_id)
-        category_count = basket.category_count()
+        category_count = basket.category_count
         return JsonResponse({'status': 'success', 'message': '数据成功删除', 'category_count': category_count})
         
 def basket_debug(request):
