@@ -39,6 +39,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='order_items')
     product_name = models.CharField(max_length=255, verbose_name='商品名称')
+    image = models.ImageField(upload_to='product_image', verbose_name='商品图片', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='下单时单价')
     quantity = models.IntegerField(verbose_name='购买数量')
     total_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='小计金额')

@@ -1,1 +1,89 @@
-order_payment
+{% extends "../../store/base.html" %}
+{% load static %}
+{% block title %}在线支付 - 吃糖网{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-dark text-white text-center py-4 border-0">
+                    <p class="text-white-50 mb-1 small text-uppercase fw-bold" style="letter-spacing: 1px;">应付总额</p>
+                    <h2 class="display-6 fw-bold mb-0 text-warning">
+                        <span class="fs-4">¥</span>确认订单页应付金额
+                    </h2>
+                    <p class="mb-0 mt-2 small text-white-50">订单号：<span class="fw-bold text-white">{{ order_sn }}</span></p>
+                </div>
+
+                <div class="card-body p-4 bg-light">
+                    <h5 class="fw-bold mb-4 text-secondary"><i class="bi bi-wallet2 me-2"></i>请选择支付方式</h5>
+
+                    <div class="mb-3 opacity-50" style="cursor: not-allowed;">
+                        <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-white">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-alipay text-primary fs-2 me-3"></i>
+                                <div>
+                                    <span class="fw-bold d-block">支付宝支付</span>
+                                    <span class="text-muted small">推荐支付宝用户使用</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary">暂未开通</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 opacity-50" style="cursor: not-allowed;">
+                        <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-white">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-wechat text-success fs-2 me-3"></i>
+                                <div>
+                                    <span class="fw-bold d-block">微信支付</span>
+                                    <span class="text-muted small">推荐微信用户使用</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary">暂未开通</span>
+                        </div>
+                    </div>
+
+                    <div class="card border-danger border-2 mb-4 bg-white shadow-sm">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-cpu text-danger fs-2 me-3"></i>
+                                <div>
+                                    <span class="fw-bold text-danger d-block">沙箱模拟支付通道</span>
+                                    <span class="text-muted small">吃糖网开发者专用安全测试环境</span>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning py-2 mb-0 small">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                提示：此通道不产生真实扣款，点击下方按钮将模拟支付成功并自动扣减库存。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <a href="{% url 'order:order_payment' order_sn %}" class="btn btn-danger w-100 py-3 fw-bold shadow-sm fs-5">
+                                <i class="bi bi-shield-lock-fill me-2"></i>模拟付款成功
+                            </a>
+                        </div>
+                        
+                        <div class="col-12">
+                            <a href="{% url 'order:order_cancel' order_sn %}" class="btn btn-outline-secondary w-100 py-2 mt-1 small">
+                                取消支付（暂不付款）
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card-footer bg-white text-center py-3 border-0">
+                    <span class="text-muted small"><i class="bi bi-shield-check text-success me-1"></i>本网站采用 256 位 SSL 安全加密传输</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

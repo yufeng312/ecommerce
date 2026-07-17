@@ -8,14 +8,16 @@ from django.template.loader import render_to_string
 from django.utils.http import (urlsafe_base64_decode, urlsafe_base64_encode)
 from django.utils.encoding import (force_bytes, force_str)
 
-from .forms import (RegistrationForm, UserEditForm)
 from .models import User
+from order.models import Order
 from .tokens import account_activation_token
+from .forms import (RegistrationForm, UserEditForm)
 
 
 @login_required
 def dashboard(request):
-    return render(request, 'account/user/dashboard.html')
+    orders = Order.objects.filter(user=request.user).order_by('-created_time')
+    return render(request, 'account/user/dashboard.html', {'orders': orders})
 
 @login_required
 def edit_details(request):

@@ -1,0 +1,209 @@
+{% extends "../../store/base.html" %}
+{% load static %}
+{% block title %}订单详情 - 吃糖网{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'store:index' %}" class="text-decoration-none text-secondary">首页</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'account:dashboard' %}" class="text-decoration-none text-secondary">我的订单</a></li>
+            <li class="breadcrumb-item active text-dark" aria-current="page">订单详情</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <span class="text-muted small d-block mb-1">订单编号：<strong class="text-dark">{{ order.order_sn }}</strong></span>
+                        <h4 class="fw-bold mb-0 d-flex align-items-center">
+                            {% if order.status == 10 %}
+                                <i class="bi bi-clock-history text-warning me-2 animate-pulse"></i> 待付款
+                            {% elif order.status == 20 %}
+                                <i class="bi bi-check-circle-fill text-success me-2"></i> 已付款，等待发货
+                            {% elif order.status == 50 %}
+                                <i class="bi bi-x-circle-fill text-secondary me-2"></i> 订单已取消
+                            {% else %}
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i> 状态：{{ order.status }}
+                            {% endif %}
+                        </h4>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        {% if order.status == 10 %}
+                            <button class="btn btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#quickPayModal">
+                                <i class="bi bi-credit-card-2-front-fill me-1"></i> 去付款
+                            </button>
+                            <a href="{% url 'order:order_cancel' order.order_sn %}" class="btn btn-outline-secondary" onclick="return confirm('确定要取消这笔订单吗？');">
+                                取消订单
+                            </a>
+                        {% else %}
+                            <a href="{% url 'store:index' %}" class="btn btn-outline-dark px-4 fw-bold">
+                                继续购物
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center text-secondary">
+                        <i class="bi bi-geo-alt-fill text-danger me-2"></i> 收货人与配送信息
+                    </h5>
+                    <div class="p-3 bg-light rounded-3">
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-3 text-muted">收货人：</div>
+                            <div class="col-sm-9 fw-bold">{{ order.user.username }}</div>
+                        </div>
+                        {% if order.user.phone %}
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-3 text-muted">联系电话：</div>
+                            <div class="col-sm-9 fw-bold">{{ order.user.phone }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-3 text-muted">收货地址：</div>
+                            <div class="col-sm-9 text-secondary">{{ order.address }}</div>
+                        </div>
+                        {% if order.note %}
+                        <div class="row g-2">
+                            <div class="col-sm-3 text-muted">买家备注：</div>
+                            <div class="col-sm-9 text-danger fw-bold"><i class="bi bi-chat-right-text me-1"></i> {{ order.note }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center text-secondary">
+                        <i class="bi bi-bag-check-fill text-dark me-2"></i> 商品清单
+                    </h5>
+                    
+                    {% for item in order_items %}
+                    <div class="d-flex align-items-center {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" class="rounded me-3 border" style="width: 75px; height: 75px; object-fit: cover;" alt="{{ item.product_name }}">
+                        {% else %}
+                            <div class="rounded me-3 border bg-secondary d-flex align-items-center justify-content-center text-white small" style="width: 75px; height: 75px;">无图</div>
+                        {% endif %}
+                        
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1 text-dark">{{ item.product_name }}</h6>
+                            <div class="small text-muted">
+                                <span class="fw-bold text-dark">¥{{ item.price }}</span>
+                                <span class="mx-2 text-black-50">x</span>
+                                <span class="badge bg-secondary text-white">{{ item.quantity }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <span class="fw-bold text-danger fs-6">¥{{ item.total_price }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+            
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-secondary"><i class="bi bi-calendar-event me-2"></i>订单日志</h5>
+                    <div class="position-relative ps-3 border-start border-2 border-danger-subtle py-2">
+                        <div class="mb-3 position-relative">
+                            <div class="position-absolute" style="left: -21px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background-color: var(--bs-danger);"></div>
+                            <span class="text-muted small d-block">创建时间</span>
+                            <span class="fw-bold small text-dark">{{ order.created_time|date:"Y-m-d H:i:s" }}</span>
+                        </div>
+                        
+                        {% if order.payment_time %}
+                        <div class="mb-3 position-relative">
+                            <div class="position-absolute" style="left: -21px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background-color: #198754;"></div>
+                            <span class="text-muted small d-block">付款时间</span>
+                            <span class="fw-bold small text-success">{{ order.payment_time|date:"Y-m-d H:i:s" }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if order.cancel_time %}
+                        <div class="position-relative">
+                            <div class="position-absolute" style="left: -21px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background-color: #6c757d;"></div>
+                            <span class="text-muted small d-block">取消时间</span>
+                            <span class="fw-bold small text-secondary">{{ order.cancel_time|date:"Y-m-d H:i:s" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4 text-secondary"><i class="bi bi-receipt me-2"></i>费用总计</h5>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">商品总价</span>
+                        <span class="text-dark">¥{{ order.total_price }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">限时优惠</span>
+                        <span class="text-success fw-bold">-¥{{ order.discount_price }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">运费</span>
+                        {% if order.freight == 0 %}
+                            <span class="text-success fw-bold">包邮</span>
+                        {% else %}
+                            <span class="text-dark">¥{{ order.freight }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold fs-5">实付款</span>
+                        <span class="fw-bolder fs-4 text-danger">¥{{ order.payment_price }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% if order.status == 10 %}
+<div class="modal fade" id="quickPayModal" tabindex="-1" aria-labelledby="quickPayModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white border-0 py-3">
+                <h5 class="modal-title fw-bold" id="quickPayModalLabel"><i class="bi bi-shield-lock-fill text-warning me-2"></i>吃糖网安全收银台</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center bg-light">
+                <p class="text-muted mb-1 small text-uppercase">本次交易应付金额</p>
+                <h2 class="fw-bolder text-danger mb-3">¥{{ order.payment_price }}</h2>
+                
+                <div class="alert alert-warning py-2 mb-4 small text-start">
+                    <i class="bi bi-info-circle-fill me-1"></i> 您正在通过开发者沙箱支付通道进行模拟付款，点击下方按钮即刻模拟真实扣除库存和支付逻辑。
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'order:order_payment' order.order_sn %}" class="btn btn-danger py-3 fw-bold fs-6 shadow-sm">
+                        确认模拟支付
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">暂不付款</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

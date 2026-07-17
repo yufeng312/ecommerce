@@ -1,8 +1,9 @@
 import random
 import datetime
+from django.utils import timezone
 from django.db import transaction
 from django.contrib import messages
-from django.shortcuts import (render, HttpResponse, redirect)
+from django.shortcuts import (render, HttpResponse, redirect, get_object_or_404)
 from django.contrib.auth.decorators import login_required
 
 from basket.basket import Basket
@@ -73,6 +74,7 @@ def order_create(request):
                     order=order,
                     product=product,
                     product_name=product.name,
+                    image = product.image,
                     price=product.discount_price,
                     quantity=qty,
                     total_price=item['total_price']
@@ -88,15 +90,58 @@ def order_create(request):
     basket.clear()
     return render(request, 'account/order/order_payment.html', {'order_sn': order_sn})
     
-
+@login_required
 def order_payment(request, order_sn):
-    return HttpResponse('付款成功按钮')
+    """
+    付款成功时,修改订单状态
+    """
+    order = get_object_or_404(Order, order_sn=order_sn, user=request.user)
 
+    # 在订单状态是10(未付款)时,修改成20(已付款)
+    if order.status == 10:
+        order.status = 20
+        order.payment_time = timezone.now()  # 记录付款时间
+        order.save()
+        messages.success(request, f'订单{order_sn}支付成功!')
+    else:
+        messages.warning(request, '该订单不需要重复支付')
+
+    return redirect('order:order_detail', order_sn=order_sn)
+
+@login_required
 def order_cancel(request, order_sn):
-    return HttpResponse('订单取消按钮')
+    """
+    点击取消付款时,修改订单状态
+    """
+    order = get_object_or_404(Order, order_sn=order_sn, user=request.user)
 
+    # 在订单状态是10(未付款)时,修改成50(已取消)
+    if order.status == 10:
+        order.status = 50
+        order.cancel_time = timezone.now()  # 记录取消时间
+        order.save()
+
+        # 找到对应商品,恢复库存
+        order_items = OrderItem.objects.filter(order=order)
+        for order_item in order_items:
+            order_item.product.stock += order_item.quantity
+            order_item.product.save()
+        
+        messages.success(request, '订单已成功取消')
+    else:
+        messages.warning(request, '该订单无法取消或已处理')
+    return render(request, 'account/order/order_cancel.html', {'order_sn': order_sn})
+
+@login_required
 def order_detail(request, order_sn):
-    return HttpResponse('订单详情页面')
+    """
+    订单详情页面
+    """
+    order = get_object_or_404(Order, order_sn=order_sn, user=request.user)
+    order_items = OrderItem.objects.filter(order=order)
 
-def order_list(request):
-    return HttpResponse('订单列表页面')
+    context = {
+        'order': order,
+        'order_items': order_items
+    }
+    return render(request, 'account/order/order_detail.html', context=context)
