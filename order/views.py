@@ -24,7 +24,7 @@ def order_confirm(request):
         'address': address,
         'user': user
     }
-    return render(request, 'account/order/order_confirm.html', context=context)
+    return render(request, 'order/order_confirm.html', context=context)
 
 @login_required
 def order_create(request):
@@ -88,7 +88,7 @@ def order_create(request):
         return redirect('basket:basket_summary')
     
     basket.clear()
-    return render(request, 'account/order/order_payment.html', {'order_sn': order_sn})
+    return render(request, 'order/order_payment.html', {'order_sn': order_sn})
     
 @login_required
 def order_payment(request, order_sn):
@@ -130,7 +130,7 @@ def order_cancel(request, order_sn):
         messages.success(request, '订单已成功取消')
     else:
         messages.warning(request, '该订单无法取消或已处理')
-    return render(request, 'account/order/order_cancel.html', {'order_sn': order_sn})
+    return render(request, 'order/order_cancel.html', {'order_sn': order_sn})
 
 @login_required
 def order_detail(request, order_sn):
@@ -144,4 +144,4 @@ def order_detail(request, order_sn):
         'order': order,
         'order_items': order_items
     }
-    return render(request, 'account/order/order_detail.html', context=context)
+    return render(request, 'order/order_detail.html', context=context)

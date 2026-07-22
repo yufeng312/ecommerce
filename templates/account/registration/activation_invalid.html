@@ -1,1 +1,28 @@
-invalid
+{% extends "../../base.html" %}
+{% block title %}激活失败 - 吃糖网{% endblock %}
+{% block header %}{% endblock  %}
+
+{% block content %}
+<section class="py-5 my-auto">
+  <div class="container px-4 px-lg-5 text-center my-5" style="max-width: 600px;">
+    <div class="mb-4">
+      <i class="bi bi-exclamation-circle text-danger opacity-75" style="font-size: 4.5rem;"></i>
+    </div>
+    <h2 class="fw-bold mb-3">账号激活失败</h2>
+    <p class="text-secondary mb-2 fs-6">
+      抱歉，您点击的激活链接无效或已过期。
+    </p>
+    <p class="text-muted small mb-4">
+      可能的原因：该账号已经激活过、激活链接不完整，或者已超过激活有效期。
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'store:index' %}" class="btn btn-outline-dark px-4 py-2">
+        <i class="bi bi-house-door me-1"></i>返回首页
+      </a>
+      <a href="{% url 'account:register' %}" class="btn btn-dark px-4 py-2">
+        重新注册<i class="bi bi-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock content %}

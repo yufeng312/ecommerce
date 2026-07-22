@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+from django.conf import settings
+
 from store.models import Product
 
 
@@ -9,7 +11,7 @@ class Basket:
         初始化session数据
         """
         self.session = request.session
-        self.basket = self.session.setdefault('skey', {})
+        self.basket = self.session.setdefault(settings.BASKET_SESSION_ID, {})
 
     def add(self, product, qty):
         """
@@ -56,7 +58,7 @@ class Basket:
         for product in products:
             qty = self.basket[str(product.id)]['qty']
             total_price += qty * product.discount_price
-        return total_price  
+        return total_price
     
     @property
     def freight(self):
@@ -124,5 +126,5 @@ class Basket:
         self.session.modified = True
     
     def clear(self):
-        del self.session['skey']
+        del self.session[settings.BASKET_SESSION_ID]
         self.save()

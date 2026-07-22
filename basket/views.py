@@ -11,7 +11,7 @@ def basket_summary(request):
     购物车页面
     """
     basket = Basket(request)
-    return render(request, 'store/basket/basket.html', {'basket': basket})
+    return render(request, 'basket/basket.html', {'basket': basket})
 
 def basket_add(request):
     """
@@ -58,9 +58,3 @@ def basket_delete(request):
         basket.delete(product_id)
         category_count = basket.category_count
         return JsonResponse({'status': 'success', 'message': '数据成功删除', 'category_count': category_count})
-        
-def basket_debug(request):
-    """
-    测试session数据是否正确
-    """
-    return JsonResponse(request.session.get('skey', {}))

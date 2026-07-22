@@ -1,23 +1,28 @@
-{% extends "../../base.html" %}
+{% extends "../base.html" %}
 {% load static %}
-{% block title %}用户注册 - 吃糖网{% endblock %}
-{%block stylesheet %}{% static "account/css/account.css" %}{% endblock %}
-
+{% block title %}用户登录 - 吃糖网{% endblock %}
+{% block stylesheet %}{% static 'account/css/account.css' %}{% endblock  %}
 {% block header %}{% endblock %}
-{% block content %}
 
-<section class="py-5 register-section flex-grow-1 d-flex align-items-center">
+{% block content %}
+<section class="py-5 login-section flex-grow-1 d-flex align-items-center">
   <div class="container px-4 px-lg-5">
     <div class="row justify-content-center">
       <div class="col-12 col-md-8 col-lg-5">
         <div class="card account-card p-4 p-md-5 bg-white">
           <div class="text-center mb-4">
-            <h2 class="fw-bolder mb-2">欢迎加入吃糖网</h2>
+            <h2 class="fw-bolder mb-2">欢迎回来</h2>
+            <p class="text-muted small">请登录您的吃糖网账号</p>
           </div>
           {% if form.errors %}
           <div class="alert alert-dark small" role="alert">
             <i class="bi-exclamation-triangle-fill me-2"></i>
             <ul class="mb-0 mt-1 ps-3">
+              {% if form.non_field_errors %}
+              {% for error in form.non_field_errors %}
+              <li>{{ error|striptags }}</li>
+              {% endfor %}
+              {% endif %}
               {% for field in form %}
               {% if field.errors %}
               <li><strong>{{ field.label }}：</strong>{{ field.errors|striptags }}</li>
@@ -33,26 +38,22 @@
               {{ form.username }}
             </div>
             <div class="form-group">
-              <label>{{ form.email.label }} <span class="text-danger small">*</span></label>
-              {{ form.email }}
-            </div>
-            <div class="form-group">
-              <label>{{ form.password.label }} <span class="text-danger small">*</span></label>
-              <span class="form-text text-muted d-block small mb-2">
-                <i class="bi-info-circle me-1"></i>{{ form.password.help_text }}
-              </span>
-              {{ form.password }}
-            </div>
-            <div class="form-group">
-              <label>{{ form.password2.label }} <span class="text-danger small">*</span></label>
-              {{ form.password2 }}
+              <div class="d-flex justify-content-between align-items-center">
+                <label class="mb-0">{{ form.password.label }} <span class="text-danger small">*</span></label>
+                <a href="{% url 'account:password_forgot' %}" class="text-muted small text-decoration-none">
+                  忘记密码？
+                </a>
+              </div>
+              <div class="mt-2">
+                {{ form.password }}
+              </div>
             </div>
             <button class="btn btn-dark w-100 py-2.5 mt-4 fw-bold" type="submit">
-              立即注册
+              立即登录
             </button>
             <div class="text-center mt-4 small">
-              <a href="{% url 'account:login' %}" class="text-muted text-decoration-underline">
-                已经有账号了？立即登录
+              <a href="{% url 'account:register' %}" class="text-muted text-decoration-underline">
+                还没有账号？立即注册
               </a>
             </div>
           </form>

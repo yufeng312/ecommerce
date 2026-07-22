@@ -110,3 +110,6 @@ LOGIN_URL = '/account/login/'
 
 # 配置email后端
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# 配置Basket session ID
+BASKET_SESSION_ID = 'basket'

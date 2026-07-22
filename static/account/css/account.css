@@ -1,0 +1,36 @@
+.register-section .login-section {
+    background-color: #f8f9fa; 
+}
+.account-card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+}
+.account-form input {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 2px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    height: calc(2.5em + 2px);
+    margin-bottom: 1rem;
+}
+.account-form input:focus {
+    color: #212529;
+    background-color: #fff;
+    border-color: #212529; 
+    outline: 0;
+    box-shadow: none;
+}
+.account-form label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #495057;
+}

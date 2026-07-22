@@ -11,7 +11,6 @@ class UserLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(
         attrs={'placeholder': '用户名', 'id': 'login-username'}
     ))
-
     password = forms.CharField(widget=forms.PasswordInput(
         attrs={'placeholder': '密码', 'id': 'login-password'}
     ))
@@ -30,7 +29,6 @@ class RegistrationForm(forms.ModelForm):
             'max_length': '用户名太长,不能超过30个字符'
         }
     )
-
     email = forms.EmailField(
         label='电子邮箱', 
         max_length=100, 
@@ -39,7 +37,6 @@ class RegistrationForm(forms.ModelForm):
             'invalid': '请输入有效的邮箱地址'
         }
     )
-
     password = forms.CharField(
         label='密码',
         min_length=8,
@@ -52,7 +49,6 @@ class RegistrationForm(forms.ModelForm):
             'max_length': '密码太长,不能超过20位'
         }
     )
-
     password2 = forms.CharField(
         label='重复密码',
         widget=forms.PasswordInput
@@ -66,7 +62,6 @@ class RegistrationForm(forms.ModelForm):
         username = self.cleaned_data.get('username')
         if not username:
             return username
-        
         username = username.lower()
         r = User.objects.filter(username=username)
         if r.count():
@@ -93,7 +88,7 @@ class RegistrationForm(forms.ModelForm):
         return password2
 
 
-class PwdResetForm(PasswordResetForm):
+class PwdForgotForm(PasswordResetForm):
     email = forms.EmailField(label='电子邮箱', max_length=200, widget=forms.TextInput(
         attrs={'placeholder': '请输入电子邮箱..'}
     ))
@@ -106,7 +101,7 @@ class PwdResetForm(PasswordResetForm):
         return email
     
 
-class PwdResetConfirmForm(SetPasswordForm):
+class PwdForgotConfirmForm(SetPasswordForm):
     new_password1 = forms.CharField(
         label='新密码', widget=forms.PasswordInput
     )

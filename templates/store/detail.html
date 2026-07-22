@@ -1,0 +1,66 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block title %}{{ product.name }} - 吃糖网{% endblock %}
+{% block header %}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container-fluid px-3 px-lg-4 my-3">
+    <div class="row gx-4 gx-lg-5 align-items-center">
+      <div class="col-md-6 mb-4 mb-md-0">
+        {% if product.image %}
+          <img class="img-fluid rounded shadow-sm object-fit-cover w-100" 
+               style="max-height: 450px;" 
+               src="{{ product.image.url }}" 
+               alt="{{ product.name }}" />
+        {% else %}
+          <img class="img-fluid rounded shadow-sm object-fit-cover w-100 opacity-75" 
+               style="max-height: 450px;" 
+               src="{% static 'default.png' %}" 
+               alt="暂无图片" />
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <div class="text-muted small mb-2 d-flex align-items-center gap-2">
+          <span class="badge bg-light text-dark border">{{ product.category.name }}</span>
+          <span>编号: {{ product.product_code|default:product.slug }}</span>
+        </div>
+        <h1 class="fw-bold fs-2 mb-3">{{ product.name }}</h1>
+        <div class="mb-4 d-flex align-items-center">
+          {% if product.is_discount %}
+            <span class="text-danger fs-3 fw-bold me-2">¥{{ product.discount_price }}</span>
+            <span class="text-muted text-decoration-line-through me-2">¥{{ product.price }}</span>
+            <span class="badge bg-dark fs-7">打折</span>
+          {% else %}
+            <span class="text-dark fs-3 fw-bold">¥{{ product.price }}</span>
+          {% endif %}
+        </div>
+        <p class="text-secondary mb-4 lh-base" style="font-size: 0.95rem;">
+          {{ product.description }}
+        </p>
+
+        <hr class="my-4 text-muted opacity-25">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <div class="input-group" style="width: 130px;">
+            <button class="btn btn-outline-secondary px-2" type="button" id="btnMinus">-</button>
+            <input class="form-control text-center px-1" id="inputQuantity" type="number" value="1" min="1" />
+            <button class="btn btn-outline-secondary px-2" type="button" id="btnPlus">+</button>
+          </div>
+          <button class="btn btn-dark px-4 py-2 add-basket-btn" 
+                  id="add-button" 
+                  data-index="{{ product.id }}" 
+                  data-url="{% url 'basket:basket_add' %}" 
+                  type="button">
+            <i class="bi-cart-plus me-1 fs-5 align-middle"></i>
+            <span class="align-middle">加入购物车</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% csrf_token %}
+
+<script src="{% static 'store/js/store.js' %}"></script>
+{% endblock content %}

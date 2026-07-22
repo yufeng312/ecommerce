@@ -1,0 +1,123 @@
+{% extends "../base.html" %}
+{% load static %}
+{% block title %}确认订单 - 吃糖网{% endblock %}
+{% block header_title %}确认订单{% endblock %}
+{% block header_subtitle %}请仔细核对您的收货信息与商品清单{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light">
+  <form action="{% url 'order:order_create' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="order-address" value="{{ address }}">
+    <div class="container px-4 px-lg-5">
+      <div class="row gx-4 gx-lg-5">
+        <div class="col-lg-8">
+          <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-3 d-flex align-items-center">
+                <i class="bi-geo-alt-fill text-danger me-2"></i> 收货人信息
+              </h5>
+              <div class="p-3 bg-light rounded border-start border-danger border-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-bold fs-6">{{ user.username }}</span>
+                  {% if user.phone %}
+                  <span class="text-muted fw-bold">{{ user.phone }}</span>
+                  {% else %}
+                  <a href="{% url 'account:dashboard' %}" class="text-danger small fw-bold text-decoration-none">
+                    <i class="bi-exclamation-circle-fill me-1"></i>请先绑定手机号
+                  </a>
+                  {% endif %}
+                </div>
+                <p class="mb-0 text-secondary">{{ address }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-4 d-flex align-items-center">
+                <i class="bi-bag-check-fill text-dark me-2"></i> 商品清单
+              </h5>
+              {% for item in basket %}
+              {% with product=item.product %}
+              <div class="d-flex align-items-center {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" class="rounded me-3 border"
+                    style="width: 70px; height: 70px; object-fit: cover;" alt="{{ product.name }}">
+                {% else %}
+                  <img src="{% static "default.png" %}" class="rounded me-3 border"
+                    style="width: 70px; height: 70px; object-fit: cover;" alt="暂无商品图">
+                {% endif %}
+                <div class="flex-grow-1">
+                  <h6 class="fw-bold mb-1">
+                    <a href="{% url 'store:product_detail' product.category.slug product.slug %}"
+                      class="text-reset text-decoration-none hover-link">{{ product.name }}</a>
+                  </h6>
+                  <div class="small text-muted">
+                    {% if product.is_discount %}
+                    <span class="text-danger fw-bold">¥{{ product.discount_price }}</span>
+                    <span class="text-decoration-line-through ms-1"
+                      style="font-size: 0.8rem;">¥{{ product.price }}</span>
+                    {% else %}
+                    <span class="text-dark fw-bold">¥{{ product.price }}</span>
+                    {% endif %}
+                    <span class="mx-2 text-black-50">x</span>
+                    <span class="badge bg-secondary text-white">{{ item.qty }}</span>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <span class="fw-bold text-dark fs-6">¥{{ item.total_price }}</span>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-3 d-flex align-items-center">
+                <i class="bi-pencil-square text-dark me-2"></i> 订单备注
+              </h5>
+              <textarea class="form-control border-0 bg-light" id="order-note" name='order-note' rows="3"
+                placeholder="选填：给商家留言，比如发货要求等（限150字）" maxlength="150"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 2rem;">
+            <h4 class="fw-bolder mb-4">费用明细</h4>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">商品总价</span>
+              <span class="text-dark">¥{{ basket.total_price }}</span>
+            </div>
+            {% if product.is_discount %}
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">限时优惠</span>
+                <span class="text-success fw-bold">-¥{{ basket.discount_price }}</span>
+              </div>
+            {% endif %}
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">运费</span>
+              {% if basket.freight == 0 %}
+              <span class="text-success fw-bold">包邮</span>
+              {% else %}
+              <span class="text-dark">¥{{ basket.freight }}</span>
+              {% endif %}
+            </div>
+            <hr class="my-3">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <span class="fw-bold fs-5">应付总额</span>
+              <span class="fw-bolder fs-4 text-danger" id="payable-price">¥{{ basket.total_payable }}</span>
+            </div>
+            <button class="btn btn-danger w-100 py-3 fw-bold fs-5 shadow-sm" id="submit-order-btn" type="submit">
+              去付款
+            </button>
+            <a href="{% url 'basket:basket_summary' %}" class="btn btn-outline-dark w-100 py-2 mt-2 small">
+              返回购物车修改
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+{% endblock content %}

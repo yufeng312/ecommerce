@@ -1,0 +1,25 @@
+.account-form input,
+.account-form textarea {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    width: 100%;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+.account-form textarea {
+    resize: none;
+}
+.account-form input:focus,
+.account-form textarea:focus {
+    border-color: #212529;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(33, 37, 41, 0.25);
+}
+.form-label-custom {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #495057;
+    margin-top: 1rem;
+    margin-bottom: 0.3rem;
+    display: block;
+}
