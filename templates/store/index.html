@@ -1,20 +1,31 @@
-<!-- home.html -->
 {% extends "../base.html" %}
 {% load static %}
 {% block title %}吃糖网{% endblock %}
 
 {% block header_title %}
-  {% if active_category %}
+  {% if is_discount %}
+    折扣专区
+  {% elif active_category %}
     {{ active_category.name }}
   {% else %}
     所有商品
   {% endif %}
-{% endblock  %}
+{% endblock %}
+
+{% block header_subtitle %}
+  {% if is_discount %}
+    超值精选好物，限时特惠不容错过
+  {% elif active_category %}
+    探索 {{ active_category.name }} 分类下的优质商品
+  {% else %}
+    轻松挑选你喜欢的商品
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 
 <section class="py-5">
-  <div class="container px-4 px-lg-5 mt-5">
+  <div class="container px-4 px-lg-5 mt-2">
   {% if products %}
     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
       {% for product in products %}
@@ -22,44 +33,25 @@
         <div class="card h-100 border-0 shadow-sm">
           <div class="position-relative">
             <a href="{% url 'store:product_detail' product.category.slug product.slug %}">
-              {% if product.image %}
               <img 
-              src="{{ product.image.url }}" 
-              class="card-img-top object-fit-cover" 
-              style="height: 180px;" 
-              alt="{{ product.name }}"
+                src="{{ product.feature_image_url }}" 
+                class="card-img-top object-fit-cover" 
+                style="height: 180px;" 
+                alt="{{ product.feature_alt_text }}"
               >
-              {% else %}
-              <img
-              src="{% static 'default.png' %}" 
-              class="card-img-top object-fit-cover" 
-              style="height: 180px;" 
-              alt="暂无图片"
-              >
-              {% endif %}
             </a>
             {% if product.is_discount %}
-            <span class="position-absolute top-0 end-0 m-2 badge bg-dark fs-7">
-              打折
+            <span class="position-absolute top-0 end-0 m-2 badge bg-danger fs-7 shadow-sm">
+              <i class="bi bi-fire me-1"></i>打折
             </span>
             {% endif %}
           </div>
           <div class="card-body d-flex flex-column p-3">
-            <h6 class="card-title text-truncate fw-bold mb-1">
+            <h6 class="card-title text-truncate fw-bold mb-3">
               <a href="{% url 'store:product_detail' product.category.slug product.slug %}" class="text-decoration-none text-dark">
                 {{ product.name }}
               </a>
             </h6>
-            <div class="mb-2 text-warning small">
-              {% with star=product.star|default:0 %}
-                {% if star >= 1 %}<i class="bi bi-star-fill"></i>{% elif star >= 0.5 %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star text-muted opacity-50"></i>{% endif %}
-                {% if star >= 2 %}<i class="bi bi-star-fill"></i>{% elif star >= 1.5 %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star text-muted opacity-50"></i>{% endif %}
-                {% if star >= 3 %}<i class="bi bi-star-fill"></i>{% elif star >= 2.5 %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star text-muted opacity-50"></i>{% endif %}
-                {% if star >= 4 %}<i class="bi bi-star-fill"></i>{% elif star >= 3.5 %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star text-muted opacity-50"></i>{% endif %}
-                {% if star >= 5 %}<i class="bi bi-star-fill"></i>{% elif star >= 4.5 %}<i class="bi bi-star-half"></i>{% else %}<i class="bi bi-star text-muted opacity-50"></i>{% endif %}
-                <span class="text-muted ms-1" style="font-size: 0.75rem;">({{ star }})</span>
-              {% endwith %}
-            </div>
             <div class="mt-auto d-flex justify-content-between align-items-center pt-2">
               <div>
                 {% if product.is_discount %}
@@ -89,61 +81,68 @@
       <div class="mb-3">
         <i class="bi bi-bag-x text-secondary opacity-50" style="font-size: 4.5rem;"></i>
       </div>
-      <h4 class="fw-bold text-dark mb-2">该分类下暂无商品</h4>
-      <p class="text-muted small mb-4">商家正在积极进货中，去逛逛其他分类吧~</p>
-      {% if active_category %}
+      {% if is_discount %}
+        <h4 class="fw-bold text-dark mb-2">暂无折扣商品</h4>
+        <p class="text-muted small mb-4">优惠活动正在筹备中，先去逛逛其他常规商品吧~</p>
+      {% elif active_category %}
+        <h4 class="fw-bold text-dark mb-2">该分类下暂无商品</h4>
+        <p class="text-muted small mb-4">商家正在积极进货中，去逛逛其他分类吧~</p>
+      {% else %}
+        <h4 class="fw-bold text-dark mb-2">暂无任何商品</h4>
+        <p class="text-muted small mb-4">商品正在陆续上架中，敬请期待~</p>
+      {% endif %}
+      {% if active_category or is_discount %}
         <a href="{% url 'store:index' %}" class="btn btn-dark px-4 py-2">
           <i class="bi bi-arrow-left me-1"></i>查看所有商品
         </a>
       {% endif %}
     </div>
   {% endif %}
-
-{% if products.has_other_pages %}
-<nav class="mt-5" aria-label="Page navigation">
-  <ul class="pagination justify-content-center">
-    {% if products.has_previous %}
-      <li class="page-item">
-        <a class="page-link text-dark" href="?page=1">首页</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link text-dark" href="?page={{ products.previous_page_number }}">上一页</a>
-      </li>
-    {% else %}
-      <li class="page-item disabled"><span class="page-link">首页</span></li>
-      <li class="page-item disabled"><span class="page-link">上一页</span></li>
-    {% endif %}
-    {% for item in page_range %}
-      {% if item == products.paginator.ELLIPSIS %}
-        <li class="page-item disabled"><span class="page-link">...</span></li>
-      {% elif item == products.number %}
-        <li class="page-item active" aria-current="page">
-          <span class="page-link bg-dark border-dark">{{ item }}</span>
+  {% if products.has_other_pages %}
+  <nav class="mt-5" aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if products.has_previous %}
+        <li class="page-item">
+          <a class="page-link text-dark" href="?{% if is_discount %}discount={{ is_discount }}&{% endif %}page=1">首页</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link text-dark" href="?{% if is_discount %}discount={{ is_discount }}&{% endif %}page={{ products.previous_page_number }}">上一页</a>
         </li>
       {% else %}
-        <li class="page-item">
-          <a class="page-link text-dark" href="?page={{ item }}">{{ item }}</a>
-        </li>
+        <li class="page-item disabled"><span class="page-link">首页</span></li>
+        <li class="page-item disabled"><span class="page-link">上一页</span></li>
       {% endif %}
-    {% endfor %}
-    {% if products.has_next %}
-      <li class="page-item">
-        <a class="page-link text-dark" href="?page={{ products.next_page_number }}">下一页</a>
-      </li>
-      <li class="page-item">
-        <a class="page-link text-dark" href="?page={{ products.paginator.num_pages }}">尾页</a>
-      </li>
-    {% else %}
-      <li class="page-item disabled"><span class="page-link">下一页</span></li>
-      <li class="page-item disabled"><span class="page-link">尾页</span></li>
-    {% endif %}
-  </ul>
-</nav>
-{% endif %}
+      {% for item in page_range %}
+        {% if item == products.paginator.ELLIPSIS %}
+          <li class="page-item disabled"><span class="page-link">...</span></li>
+        {% elif item == products.number %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link bg-dark border-dark">{{ item }}</span>
+          </li>
+        {% else %}
+          <li class="page-item">
+            <a class="page-link text-dark" href="?{% if is_discount %}discount={{ is_discount }}&{% endif %}page={{ item }}">{{ item }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      {% if products.has_next %}
+        <li class="page-item">
+          <a class="page-link text-dark" href="?{% if is_discount %}discount={{ is_discount }}&{% endif %}page={{ products.next_page_number }}">下一页</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link text-dark" href="?{% if is_discount %}discount={{ is_discount }}&{% endif %}page={{ products.paginator.num_pages }}">尾页</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">下一页</span></li>
+        <li class="page-item disabled"><span class="page-link">尾页</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
   </div>
 </section>
 
 {% csrf_token %}
 
-<script src='{% static 'store/js/store.js' %}'></script>
+<script src='{% static "store/js/store.js" %}'></script>
 {% endblock content %}

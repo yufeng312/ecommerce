@@ -17,13 +17,8 @@
           data-url="{% url 'basket:basket_update' %}">
           <div class="row g-0 align-items-center p-3">
             <div class="col-4 col-md-2 text-center">
-              {% if product.image %}
-              <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}"
+              <img src="{{ product.feature_image_url }}" class="img-fluid rounded" alt="{{ product.feature_alt_text }}"
                 style="max-height: 90px; object-fit: cover;" />
-              {% else %}
-              <img src="{% static 'default.png' %}" class="img-fluid rounded" alt="{{ product.name }}"
-                style="max-height: 90px; object-fit: cover;" />
-              {% endif %}
             </div>
             <div class="col-8 col-md-4 px-3">
               <h5 class="fw-bold mb-1">

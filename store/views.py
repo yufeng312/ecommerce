@@ -23,13 +23,17 @@ def index(request, category_slug=None):
         basket.save()
         return JsonResponse({"qty": len(basket)})
     else:
-        page_num = request.GET.get("page", 1)
-        categories = Category.objects.all()
+        page_num = request.GET.get('page', 1)
+        is_discount = request.GET.get('discount')
+        categories = Category.objects.filter(parent=None).prefetch_related('children')
         products = Product.products.all()
         active_category = None
         if category_slug:
             active_category = get_object_or_404(Category, slug=category_slug)
-            products = Product.products.filter(category=active_category)
+            category_family = active_category.get_descendants(include_self=True)
+            products = Product.products.filter(category__in=category_family)
+        if is_discount == "true":
+            products = Product.products.filter(is_discount=True)
         paginator = Paginator(products, 16)
         products = paginator.get_page(page_num)
         page_range = paginator.get_elided_page_range(
@@ -40,6 +44,7 @@ def index(request, category_slug=None):
             "products": products,
             "active_category": active_category,
             "page_range": page_range,
+            "is_discount": is_discount,
         }
         return render(request, "store/index.html", context)
 

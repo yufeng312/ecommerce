@@ -75,3 +75,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// 商品详情页图片切换逻辑
+document.addEventListener('DOMContentLoaded', function () {
+  const mainImg = document.getElementById('mainProductImage');
+  const thumbs = document.querySelectorAll('.product-thumb');
+  if (mainImg && thumbs.length > 0) {
+    thumbs.forEach(thumb => {
+      thumb.addEventListener('click', function () {
+        mainImg.style.opacity = '0.5';
+        setTimeout(() => {
+          mainImg.src = this.src;
+          mainImg.style.opacity = '1';
+        }, 150);
+        thumbs.forEach(t => {
+          t.classList.remove('border-primary', 'border-2', 'opacity-100');
+          t.classList.add('opacity-75');
+        });
+        this.classList.add('border-primary', 'border-2', 'opacity-100');
+        this.classList.remove('opacity-75');
+      });
+    });
+  }
+});

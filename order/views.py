@@ -4,11 +4,11 @@ import random
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.shortcuts import HttpResponse, get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from basket.basket import Basket
-from store.models import Product
+from store.models import Product, ProductImage
 
 from .models import Order, OrderItem
 
@@ -70,12 +70,17 @@ def order_create(request):
                     )
                 product.stock -= qty
                 product.save()
+                product_image = (
+                    ProductImage.objects.filter(product=product, is_feature=True).first()
+                    or ProductImage.objects.filter(product=product).first()
+                )
+                image_path = product_image.image if product_image else 'images/default.png'
 
                 OrderItem.objects.create(
                     order=order,
                     product=product,
                     product_name=product.name,
-                    image=product.image,
+                    image=image_path,
                     price=product.discount_price,
                     quantity=qty,
                     total_price=item["total_price"],

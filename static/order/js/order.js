@@ -1,12 +1,15 @@
 let timeLeft = 5;
 const countdownElement = document.getElementById('countdown');
+const redirectUrl = countdownElement.dataset.url; 
 
 const timer = setInterval(() => {
-timeLeft--;
-countdownElement.innerText = timeLeft;
+  timeLeft--;
+  if (countdownElement) {
+    countdownElement.innerText = timeLeft;
+  }
 
-if (timeLeft <= 0) {
+  if (timeLeft <= 0) {
     clearInterval(timer);
-    window.location.href = "{% url 'store:index' %}";
-}
+    window.location.href = redirectUrl; 
+  }
 }, 1000);

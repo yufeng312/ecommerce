@@ -13,37 +13,57 @@
 <body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container-fluid px-3 px-lg-4">
-      <div class="d-flex align-items-center me-auto">
-        <a class="navbar-brand fw-bold fs-3 me-5" href="{% url 'store:index' %}">吃糖网</a>
-        <div class="dropdown">
-          <a class="nav-link dropdown-toggle text-dark fs-5 fw-semibold p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            商品分类
-          </a>
-          <ul class="dropdown-menu shadow-sm">
-            <li><a class="dropdown-item" href="{% url 'store:index' %}">全部商品</a></li>
-            <li><hr class="dropdown-divider"></li>
-            {% for c in categories %}
-            <li><a class="dropdown-item" href="{% url 'store:category_product' c.slug %}">{{ c.name }}</a></li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#userMenu" aria-controls="userMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand fw-bold fs-3 me-4" href="{% url 'store:index' %}">吃糖网</a>
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse flex-grow-0 mt-2 mt-lg-0" id="userMenu">
-        <div class="d-flex flex-column flex-lg-row gap-2">
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1 mt-2 mt-lg-0">
+          <li class="nav-item">
+            <a class="nav-link text-dark fs-6 fw-semibold" href="{% url 'store:index' %}">所有商品</a>
+          </li>
+          {% for c in categories %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark fs-6 fw-semibold" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ c.name }}
+            </a>
+            <ul class="dropdown-menu shadow-sm">
+              <li>
+                <a class="dropdown-item fw-bold text-primary" href="{% url 'store:category_product' c.slug %}">
+                  全部{{ c.name }}
+                </a>
+              </li>
+              {% if c.children.all %}
+                <li><hr class="dropdown-divider"></li>
+                {% for child in c.children.all %}
+                  <li>
+                    <a class="dropdown-item" href="{% url 'store:category_product' child.slug %}">
+                      {{ child.name }}
+                    </a>
+                  </li>
+                {% endfor %}
+              {% endif %}
+            </ul>
+          </li>
+          {% endfor %}
+          <li class="nav-item">
+            <a class="nav-link text-danger fw-bold fs-6 d-inline-flex align-items-center gap-1 ms-lg-2" href="{% url 'store:index' %}?discount=true">
+              <i class="bi bi-fire"></i> 折扣专区
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex flex-column flex-lg-row gap-2 align-items-lg-center">
           {% if user.is_authenticated %}
-          <a href="{% url 'account:logout' %}" class="btn btn-outline-danger">
-            <i class="bi-box-arrow-right me-1"></i>退出登录
-          </a>
-          <a href="{% url 'account:dashboard' %}" class="btn btn-outline-dark">
-            <i class="bi-person-fill me-1"></i>个人中心
-          </a>
+            <a href="{% url 'account:logout' %}" class="btn btn-outline-danger">
+              <i class="bi-box-arrow-right me-1"></i>退出登录
+            </a>
+            <a href="{% url 'account:dashboard' %}" class="btn btn-outline-dark">
+              <i class="bi-person-fill me-1"></i>个人中心
+            </a>
           {% else %}
-          <a href="{% url 'account:login' %}" class="btn btn-outline-dark">
-            <i class="bi-box-arrow-in-right me-1"></i>登录
-          </a>
+            <a href="{% url 'account:login' %}" class="btn btn-outline-dark">
+              <i class="bi-box-arrow-in-right me-1"></i>登录
+            </a>
           {% endif %}
           <a href="{% url 'basket:basket_summary' %}" class="btn btn-outline-dark">
             <i class="bi-cart-fill me-1"></i>购物车

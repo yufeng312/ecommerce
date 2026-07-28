@@ -13,7 +13,7 @@
       <h2 class="fw-bold mb-3">订单取消成功</h2>
       <p class="text-secondary mb-4">您的订单（单号：{{ order_sn }}）已安全取消，所购商品库存已为您实时退回。</p>
       <div class="alert alert-light border rounded mb-4 shadow-sm py-3">
-        <span class="fw-bold text-danger" id="countdown">5</span> 秒后系统将自动为您跳转至商城首页...
+        <span class="fw-bold text-danger" id="countdown" data-url="{% url 'store:index' %}">5</span> 秒后系统将自动为您跳转至商城首页...
       </div>
       <a href="{% url 'store:index' %}" class="btn btn-dark px-4 py-2 fw-bold shadow-sm">
         <i class="bi bi-house-door-fill me-2"></i>立即返回首页

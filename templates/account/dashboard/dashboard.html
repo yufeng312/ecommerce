@@ -68,10 +68,10 @@
                 <div class="flex-shrink-0 me-3">
                   {% if item.product and item.product.category.slug and item.product.slug %}
                   <a href="{% url 'store:product_detail' item.product.category.slug item.product.slug %}">
-                    <img class="product-snapshot" src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static "default.png" %}{% endif %}" alt="{{ item.product.name }}" />
+                    <img class="product-snapshot" src="{{ item.product.feature_image_url }}" alt="{{ item.product.feature_alt_text }}" />
                   </a>
                   {% else %}
-                    <img class="product-snapshot" src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static "default.png" %}{% endif %}" alt="商品已下架" />
+                    <img class="product-snapshot" src="{{ item.product.feature_image_url }}" alt="商品已下架" />
                   {% endif %}
                 </div>
                 <div class="flex-grow-1">

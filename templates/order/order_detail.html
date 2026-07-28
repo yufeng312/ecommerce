@@ -88,13 +88,8 @@
           </h5>
           {% for item in order_items %}
           <div class="d-flex align-items-center {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
-            {% if item.image %}
-            <img src="{{ item.image.url }}" class="rounded me-3 border"
-              style="width: 75px; height: 75px; object-fit: cover;" alt="{{ item.product_name }}">
-            {% else %}
-            <img src="{% static "default.png" %}" class="rounded me-3 border"
-              style="width: 75px; height: 75px; object-fit: cover;" alt="暂无商品图">
-            {% endif %}
+            <img src="{{ item.product.feature_image_url }}" class="rounded me-3 border"
+              style="width: 75px; height: 75px; object-fit: cover;" alt="{{ item.product.feature_alt_text }}">
             <div class="flex-grow-1">
               <h6 class="fw-bold mb-1 text-dark">{{ item.product_name }}</h6>
               <div class="small text-muted">

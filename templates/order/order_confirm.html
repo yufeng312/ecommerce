@@ -40,13 +40,8 @@
               {% for item in basket %}
               {% with product=item.product %}
               <div class="d-flex align-items-center {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
-                {% if product.image %}
-                  <img src="{{ product.image.url }}" class="rounded me-3 border"
-                    style="width: 70px; height: 70px; object-fit: cover;" alt="{{ product.name }}">
-                {% else %}
-                  <img src="{% static "default.png" %}" class="rounded me-3 border"
-                    style="width: 70px; height: 70px; object-fit: cover;" alt="暂无商品图">
-                {% endif %}
+                <img src="{{ product.feature_image_url }}" class="rounded me-3 border"
+                  style="width: 70px; height: 70px; object-fit: cover;" alt="{{ product.feature_alt_text }}">
                 <div class="flex-grow-1">
                   <h6 class="fw-bold mb-1">
                     <a href="{% url 'store:product_detail' product.category.slug product.slug %}"
