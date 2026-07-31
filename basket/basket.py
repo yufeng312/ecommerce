@@ -12,6 +12,7 @@ class Basket:
         """
         self.session = request.session
         self.basket = self.session.setdefault(settings.BASKET_SESSION_ID, {})
+        self._products = None
 
     def add(self, product, qty):
         """
@@ -24,6 +25,19 @@ class Basket:
         else:
             self.basket[product_id]["qty"] += int(qty)
         self.save()
+        self._products = None  # 使缓存失效,避免脏数据
+
+    @property
+    def products(self):
+        """
+        获取内存中所有的Product对象,并存储在内存中(避免查询N+1问题)
+        """
+        if self._products is None:
+            product_ids = self.basket.keys()
+            self._products = list(
+                Product.objects.filter(pk__in=product_ids).prefetch_related('product_image').select_related('category')
+            )
+        return self._products
 
     @property
     def category_count(self):
@@ -37,11 +51,8 @@ class Basket:
         """
         购物车中商品的总价
         """
-        product_ids = self.basket.keys()
-        products = Product.objects.filter(id__in=product_ids)
-
         price = Decimal("0.00")
-        for product in products:
+        for product in self.products:
             qty = self.basket[str(product.id)]["qty"]
             price += qty * product.price
         return price
@@ -49,13 +60,10 @@ class Basket:
     @property
     def payment_price(self):
         """
-        购物车中商品实际总价
+        购物车中商品实际总价(不含运费)
         """
-        product_ids = self.basket.keys()
-        products = Product.objects.filter(id__in=product_ids)
-
         total_price = Decimal("0.00")
-        for product in products:
+        for product in self.products:
             qty = self.basket[str(product.id)]["qty"]
             total_price += qty * product.discount_price
         return total_price
@@ -79,7 +87,7 @@ class Basket:
     @property
     def total_payable(self):
         """
-        实际支付金额
+        实际支付金额(含运费)
         """
         return self.payment_price + self.freight
 
@@ -90,6 +98,7 @@ class Basket:
         product_id = str(product.id)
         self.basket[product_id]["qty"] = int(qty)
         self.session.modified = True
+        self._products = None
 
     def delete(self, product_id):
         """
@@ -98,20 +107,19 @@ class Basket:
         product_id = str(product_id)
         del self.basket[product_id]
         self.save()
+        self._products = None
 
     def __iter__(self):
         """
-        用session中的商品id获取商品数据,复制商品数据,生成一个可迭代对象
+        复制商品数据,生成一个可迭代对象
         """
-        product_ids = self.basket.keys()
-        products = Product.objects.filter(id__in=product_ids)
         basket = {k: v.copy() for k, v in self.basket.items()}
 
-        for product in products:
+        for product in self.products:
             basket[str(product.id)]["product"] = product
 
         for item in basket.values():
-            product = item["product"]
+            product = item.get("product")
             item["saved_amount"] = product.price - product.discount_price
             item["total_price"] = product.discount_price * item["qty"]
             yield item

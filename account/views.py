@@ -1,13 +1,14 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
-from order.models import Order
+from order.models import Order, OrderItem
 
 from .forms import RegistrationForm, UserEditForm
 from .models import User
@@ -18,7 +19,11 @@ from .tokens import account_activation_token
 def dashboard(request):
     status = request.GET.get("status", "all")
     page_number = request.GET.get("page", 1)
-    orders_query = Order.objects.filter(user=request.user).order_by("-created_time")
+    orders_query = Order.objects.prefetch_related(
+        Prefetch('order_items',
+            queryset=OrderItem.objects.select_related('product__category').prefetch_related('product__product_image')
+        )
+    ).filter(user=request.user).order_by("-created_time")
     if status != "all":
         try:
             orders_query = orders_query.filter(status=int(status))

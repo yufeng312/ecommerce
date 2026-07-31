@@ -26,14 +26,14 @@ def index(request, category_slug=None):
         page_num = request.GET.get('page', 1)
         is_discount = request.GET.get('discount')
         categories = Category.objects.filter(parent=None).prefetch_related('children')
-        products = Product.products.all()
+        products = Product.products.select_related('category').prefetch_related('product_image').all()
         active_category = None
         if category_slug:
             active_category = get_object_or_404(Category, slug=category_slug)
             category_family = active_category.get_descendants(include_self=True)
-            products = Product.products.filter(category__in=category_family)
+            products = products.filter(category__in=category_family)
         if is_discount == "true":
-            products = Product.products.filter(is_discount=True)
+            products = products.filter(is_discount=True)
         paginator = Paginator(products, 16)
         products = paginator.get_page(page_num)
         page_range = paginator.get_elided_page_range(
@@ -53,7 +53,10 @@ def product_detail(request, category, product):
     """
     商品详情页
     """
-    product = get_object_or_404(Product, slug=product)
+    product = get_object_or_404(
+        Product.objects.prefetch_related('product_image'), 
+        slug=product
+        )
     if product.stock > 0:
         category = get_object_or_404(Category, slug=category)
         context = {"product": product, "category": category}

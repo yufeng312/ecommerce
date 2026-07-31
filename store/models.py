@@ -133,9 +133,20 @@ class Product(models.Model):
         return self.price
 
     @property
+    def feature_image(self):
+        """获取主图对象,如果主图则返回第一个对象,都没有则返回None"""
+        images = list(self.product_image.all())
+        if not images:
+            return None
+        for image in images:
+            if image.is_feature:
+                return image
+        return images[0]
+
+    @property
     def feature_image_url(self):
         """获取商品主图URL,没有主图则获取第一张图片,没有图片则获取默认图片"""
-        image_obj = self.product_image.filter(is_feature=True).first() or self.product_image.first()
+        image_obj = self.feature_image
         if image_obj and image_obj.image:
             return image_obj.image.url
         return 'images/default.png'
@@ -143,7 +154,7 @@ class Product(models.Model):
     @property
     def feature_alt_text(self):
         """获取商品主图的alt描述,没有则返回商品名称"""
-        image_obj = self.product_image.filter(is_feature=True).first() or self.product_image.first()
+        image_obj = self.feature_image
         if image_obj and image_obj.alt_text:
             return image_obj.alt_text
         return self.name or '暂无商品图'
