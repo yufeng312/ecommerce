@@ -7,7 +7,7 @@ from django.contrib.auth.forms import (
     SetPasswordForm,
 )
 
-from .models import User
+from .models import User, Address
 
 
 class UserLoginForm(AuthenticationForm):
@@ -146,3 +146,21 @@ class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ("email", "username", "avatar", "phone", "description")
+
+class AddressForm(forms.ModelForm):
+    phone = forms.RegexField(
+        r"^1[3-9]\d{9}$",
+        label="收件人手机号",
+        error_messages={"invalid": "请输入正确的手机号"},
+        widget=forms.TextInput(attrs={"placeholder": "请填写手机号..", 'class': 'form-control'}),
+    )
+    class Meta:
+        model = Address
+        fields = ['name', 'phone', 'province', 'city', 'district', 'detail_address']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': '请输入收件人姓名', 'class': 'form-control'}),
+            'province': forms.TextInput(attrs={'placeholder': '如: 山东省', 'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'placeholder': '如: 青岛市', 'class': 'form-control'}),
+            'district': forms.TextInput(attrs={'placeholder': '如: 李沧区', 'class': 'form-control'}),
+            'detail_address': forms.TextInput(attrs={'placeholder': '请输入详细地址和门牌号', 'class': 'form-control', 'rows': 3}),
+        }

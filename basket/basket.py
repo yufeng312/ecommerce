@@ -49,7 +49,7 @@ class Basket:
     @property
     def total_price(self):
         """
-        购物车中商品的总价
+        购物车中商品的总价(未打折)
         """
         price = Decimal("0.00")
         for product in self.products:

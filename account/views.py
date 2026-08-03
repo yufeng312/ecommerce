@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -10,8 +11,8 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from order.models import Order, OrderItem
 
-from .forms import RegistrationForm, UserEditForm
-from .models import User
+from .forms import RegistrationForm, UserEditForm, AddressForm
+from .models import User, Address
 from .tokens import account_activation_token
 
 
@@ -113,3 +114,64 @@ def account_activate(request, uid, token):
         return redirect("account:dashboard")
     else:
         return render(request, "account/registration/activation_invalid.html")
+
+@login_required
+def address_view(request):
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-update_time')
+    return render(request, 'account/address/address.html', {'addresses': addresses})
+
+@login_required
+def address_add(request):
+    if request.method == 'POST':
+        address_form = AddressForm(request.POST)
+        if address_form.is_valid():
+            address = address_form.save(commit=False)
+            address.user = request.user
+            address.save()
+            messages.success(request, '地址添加成功')
+            return redirect('account:address_view')
+    else:
+        address_form = AddressForm()
+    return render(request, 'account/address/address_add.html', {'form': address_form})
+
+@login_required
+def address_edit(request, id):
+    address_obj = Address.objects.filter(user=request.user, id=id).first()
+    if not address_obj:
+        messages.warning(request, '地址不存在')
+        return redirect('account:address_view')
+    if request.method == 'POST':
+        address_form = AddressForm(request.POST, instance=address_obj)
+        if address_form.is_valid():
+            address_form.save()
+            messages.success(request, '地址修改成功')
+            return redirect('account:address_view')
+    else:
+        address_form = AddressForm(instance=address_obj)
+    return render(request, 'account/address/address_add.html', {'form':address_form, 'address': address_obj})
+
+@login_required
+def address_delete(request, id):
+    address = Address.objects.filter(user=request.user, id=id).first()
+    if address:
+        was_default = address.is_default
+        address.delete()
+        if was_default:
+            address_first = Address.objects.filter(user=request.user).first()
+            if address_first:
+                address_first.is_default = True
+                address_first.save()
+    else:
+        messages.warning(request, '地址不存在或已被删除')
+    return redirect('account:address_view')
+
+@login_required
+def address_default(request, id):
+    address = Address.objects.filter(user=request.user, id=id).first()
+    if not address:
+        messages.error(request, '地址不存在')
+        return redirect('account:address_view')
+    address.is_default = True
+    address.save()
+    messages.success(request, '默认地址设置成功')
+    return redirect('account:address_view')

@@ -1,0 +1,84 @@
+{% extends "../../base.html" %}
+{% block title %}收货地址管理 - 吃糖网{% endblock %}
+{% block header_title %}收货地址管理{% endblock %}
+{% block header_subtitle %}管理您的常用收货地址，下单更高效快捷{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-light min-vh-50">
+  <div class="container px-4 px-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h5 class="fw-bold mb-0 text-dark">
+        <i class="bi bi-geo-alt-fill text-danger me-2"></i>我的地址簿
+      </h5>
+      <a href="{% url 'account:address_add' %}" class="btn btn-dark shadow-sm px-3 rounded-pill">
+        <i class="bi bi-plus-lg me-1"></i>新增收货地址
+      </a>
+    </div>
+    {% if addresses %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      {% for address in addresses %}
+      <div class="col">
+        <div
+          class="card h-100 border-0 shadow-sm rounded-3 position-relative overflow-hidden {% if address.is_default %}border-start border-4 border-danger{% endif %}">
+          {% if address.is_default %}
+          <span class="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 small rounded-bl shadow-sm fw-bold"
+            style="border-bottom-left-radius: 0.5rem; font-size: 0.75rem;">
+            <i class="bi bi-star-fill me-1"></i>默认地址
+          </span>
+          {% endif %}
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center gap-2 mb-3 {% if address.is_default %}pe-5{% endif %}">
+              <span class="fw-bold fs-5 text-dark">{{ address.name }}</span>
+              <span class="text-muted small">{{ address.phone }}</span>
+            </div>
+            <p class="card-text text-secondary mb-3 small lh-base">
+              <i class="bi bi-geo-alt me-1"></i>
+              {{ address.province }} {{ address.city }} {{ address.district }} {{ address.detail_address }}
+            </p>
+            <hr class="text-secondary opacity-25 my-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                {% if not address.is_default %}
+                <a href="{% url 'account:address_default' address.id %}"
+                  class="btn btn-link p-0 text-decoration-none small text-muted hover-primary">
+                  <i class="bi bi-star me-1"></i>设为默认
+                </a>
+                {% else %}
+                <span class="small text-danger fw-bold">
+                  <i class="bi bi-check-circle-fill me-1"></i>当前默认地址
+                </span>
+                {% endif %}
+              </div>
+              <div class="d-flex gap-2">
+                <a href="{% url 'account:address_edit' address.id %}"
+                  class="btn btn-sm btn-outline-dark px-3 rounded-pill">
+                  <i class="bi bi-pencil me-1"></i>编辑
+                </a>
+                <a href="{% url 'account:address_delete' address.id %}"
+                  class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('确定要删除这个收货地址吗？');">
+                  <i class="bi bi-trash me-1"></i>删除
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm rounded-3 py-5 text-center my-3">
+      <div class="card-body">
+        <div class="mb-3">
+          <i class="bi bi-geo-alt text-secondary opacity-50" style="font-size: 4rem;"></i>
+        </div>
+        <h5 class="fw-bold text-dark mb-2">暂无收货地址</h5>
+        <p class="text-muted small mb-4">您还没有添加任何收货地址，添加后下单将更加快捷~</p>
+        <a href="{% url 'account:address_add' %}" class="btn btn-dark px-4 py-2 rounded-pill shadow-sm">
+          <i class="bi bi-plus-lg me-1"></i>立即添加新地址
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock content %}

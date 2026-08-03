@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from basket.basket import Basket
-from store.models import Product, ProductImage
+from store.models import Product
 
 from .models import Order, OrderItem
 

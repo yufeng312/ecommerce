@@ -66,6 +66,6 @@
 </section>
 
 {% csrf_token %}
-
-<script src="{% static 'store/js/store.js' %}"></script>
 {% endblock content %}
+
+{% block extra_js %}<script src="{% static 'store/js/store.js' %}"></script>{% endblock %}
