@@ -59,6 +59,17 @@
             <i class="bi-cart-plus me-1 fs-5 align-middle"></i>
             <span class="align-middle">加入购物车</span>
           </button>
+          <a href="{% url 'account:wishlist_add' product.id %}" 
+            class="btn {% if request.user.is_authenticated and product in request.user.user_wishlist.all %}btn-danger{% else %}btn-outline-danger{% endif %} px-4 py-2 d-inline-flex align-items-center" 
+            title="收藏到心愿单">
+            {% if is_in_wishlist %}
+              <i class="bi bi-heart-fill me-1 fs-5 align-middle"></i>
+              <span class="align-middle">已收藏</span>
+            {% else %}
+              <i class="bi bi-heart me-1 fs-5 align-middle"></i>
+              <span class="align-middle">收藏</span>
+            {% endif %}
+          </a>
         </div>
       </div>
     </div>

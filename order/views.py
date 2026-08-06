@@ -61,9 +61,12 @@ def order_create(request):
             )
             product_ids = [int(pk) for pk in basket.basket.keys()]
             # 加锁,防止超库存
-            products = Product.objects.select_for_update().filter(
-                pk__in=product_ids
-            ).prefetch_related('product_image').order_by('id')
+            products = (
+                Product.objects.select_for_update()
+                .filter(pk__in=product_ids)
+                .prefetch_related("product_image")
+                .order_by("id")
+            )
             product_dict = {product.id: product for product in products}
             product_update_list = []
             order_items_crete_list = []
@@ -72,7 +75,7 @@ def order_create(request):
                 qty = int(item["qty"])
                 product_db = product_dict.get(product_id)
                 if not product_db:
-                    raise ValueError('部分商品已下架或不存在')
+                    raise ValueError("部分商品已下架或不存在")
                 if qty > product_db.stock:
                     raise ValueError(
                         f"商品[{product_db.name}]库存不足,目前仅剩[{product_db.stock}]件"
@@ -80,8 +83,13 @@ def order_create(request):
                 product_db.stock -= qty
                 product_update_list.append(product_db)
                 images = list(product_db.product_image.all())
-                product_image = next((img for img in images if img.is_feature), images[0] if images else None)
-                image_path = product_image.image.name if product_image else 'images/default.png'
+                product_image = next(
+                    (img for img in images if img.is_feature),
+                    images[0] if images else None,
+                )
+                image_path = (
+                    product_image.image.name if product_image else "images/default.png"
+                )
                 order_items_crete_list.append(
                     OrderItem(
                         order=order,
@@ -94,9 +102,9 @@ def order_create(request):
                     )
                 )
             # 批量更新,优化更新次数
-            Product.objects.bulk_update(product_update_list, fields=['stock'])
+            Product.objects.bulk_update(product_update_list, fields=["stock"])
             OrderItem.objects.bulk_create(order_items_crete_list)
-                
+
     except ValueError as e:
         messages.error(request, str(e))
         return redirect("basket:basket_summary")
@@ -158,8 +166,14 @@ def order_detail(request, order_sn):
     """
     订单详情页面
     """
-    order = get_object_or_404(Order.objects.select_related('user'), order_sn=order_sn, user=request.user)
-    order_items = OrderItem.objects.select_related('product').prefetch_related('product__product_image').filter(order=order)
+    order = get_object_or_404(
+        Order.objects.select_related("user"), order_sn=order_sn, user=request.user
+    )
+    order_items = (
+        OrderItem.objects.select_related("product")
+        .prefetch_related("product__product_image")
+        .filter(order=order)
+    )
 
     context = {"order": order, "order_items": order_items}
     return render(request, "order/order_detail.html", context=context)

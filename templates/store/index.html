@@ -61,15 +61,26 @@
                   <span class="text-dark fw-bold fs-5">¥{{ product.price }}</span>
                 {% endif %}
               </div>
-              <button 
-                type="button" 
-                class="btn btn-sm btn-outline-dark add-basket-btn px-2 py-1" 
-                data-index="{{ product.id }}"
-                data-url="{% url 'store:index' %}"
-                title="加入购物车"
-              >
-                <i class="bi bi-cart-plus fs-6"></i>
-              </button>
+              <div class="d-flex gap-1">
+                <a href="{% url 'account:wishlist_add' product.id %}" 
+                  class="btn btn-sm btn-outline-danger px-2 py-1" 
+                  title="添加到心愿单">
+                  {% if request.user.is_authenticated and product in request.user.user_wishlist.all %}
+                    <i class="bi bi-heart-fill fs-6"></i>
+                  {% else %}
+                    <i class="bi bi-heart fs-6"></i>
+                  {% endif %}
+                </a>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-dark add-basket-btn px-2 py-1" 
+                  data-index="{{ product.id }}"
+                  data-url="{% url 'store:index' %}"
+                  title="加入购物车"
+                >
+                  <i class="bi bi-cart-plus fs-6"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -35,7 +35,9 @@ class Basket:
         if self._products is None:
             product_ids = self.basket.keys()
             self._products = list(
-                Product.objects.filter(pk__in=product_ids).prefetch_related('product_image').select_related('category')
+                Product.objects.filter(pk__in=product_ids)
+                .prefetch_related("product_image")
+                .select_related("category")
             )
         return self._products
 

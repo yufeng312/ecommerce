@@ -115,11 +115,15 @@ BASKET_SESSION_ID = "basket"
 
 # 配置debug-toolbar
 if DEBUG:
-    INTERNAL_IPS = ["127.0.0.1",]
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
 
     MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
-    INSTALLED_APPS += ["debug_toolbar",]
+    INSTALLED_APPS += [
+        "debug_toolbar",
+    ]
 
     DEBUG_TOOLBAR_PANELS = [
         "debug_toolbar.panels.versions.VersionsPanel",
@@ -136,4 +140,6 @@ if DEBUG:
         "debug_toolbar.panels.redirects.RedirectsPanel",
     ]
 
-    DEBUG_TOOLBAR_CONFIG = {"INTERCEPT_REDIRECTS": False,}
+    DEBUG_TOOLBAR_CONFIG = {
+        "INTERCEPT_REDIRECTS": False,
+    }

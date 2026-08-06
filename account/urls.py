@@ -63,11 +63,13 @@ urlpatterns = [
         TemplateView.as_view(template_name="account/dashboard/delete_confirm.html"),
         name="delete_confirmation",
     ),
-
-    # 收货地址
-    path('address/', views.address_view, name='address_view'),
-    path('address/add/', views.address_add, name='address_add'),
-    path('address/edit/<uuid:id>/', views.address_edit, name='address_edit'),
-    path('address/delete/<uuid:id>/', views.address_delete, name='address_delete'),
-    path('address/set-default/<uuid:id>/', views.address_default, name='address_default'),
+    path("address/", views.address_view, name="address_view"),
+    path("address/add/", views.address_add, name="address_add"),
+    path("address/edit/<uuid:id>/", views.address_edit, name="address_edit"),
+    path("address/delete/<uuid:id>/", views.address_delete, name="address_delete"),
+    path(
+        "address/set-default/<uuid:id>/", views.address_default, name="address_default"
+    ),
+    path("wishlist/", views.wishlist, name="wishlist"),
+    path("wishlist/add/<int:id>/", views.wishlist_add, name="wishlist_add"),
 ]

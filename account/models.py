@@ -1,10 +1,8 @@
 import uuid
+
 from django.conf import settings
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-)
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
 from django.core.mail import send_mail
 from django.db import models
 
@@ -63,25 +61,34 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Address(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses', verbose_name='用户')
-    name = models.CharField(max_length=50, verbose_name='收件人姓名', blank=False)
-    phone = models.CharField(max_length=11, verbose_name='收件人手机号', blank=False)
-    province = models.CharField(max_length=50, verbose_name='省份', blank=False)
-    city = models.CharField(max_length=50, verbose_name='城市', blank=False)
-    district = models.CharField(max_length=50, verbose_name='区/县', blank=False)
-    detail_address = models.CharField(max_length=255, verbose_name='详细地址', blank=False)
-    is_default = models.BooleanField(default=False, db_index=True, verbose_name='是否为默认地址')
-    create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
-    update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="addresses",
+        verbose_name="用户",
+    )
+    name = models.CharField(max_length=50, verbose_name="收件人姓名", blank=False)
+    phone = models.CharField(max_length=11, verbose_name="收件人手机号", blank=False)
+    province = models.CharField(max_length=50, verbose_name="省份", blank=False)
+    city = models.CharField(max_length=50, verbose_name="城市", blank=False)
+    district = models.CharField(max_length=50, verbose_name="区/县", blank=False)
+    detail_address = models.CharField(
+        max_length=255, verbose_name="详细地址", blank=False
+    )
+    is_default = models.BooleanField(
+        default=False, db_index=True, verbose_name="是否为默认地址"
+    )
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    update_time = models.DateTimeField(auto_now=True, verbose_name="更新时间")
 
     class Meta:
-        db_table = 'Address'
-        verbose_name = '地址簿'
-        verbose_name_plural = '地址簿'
-        ordering = ['-is_default', '-update_time']
+        db_table = "Address"
+        verbose_name = "地址簿"
+        verbose_name_plural = "地址簿"
+        ordering = ["-is_default", "-update_time"]
 
     def __str__(self):
-        return '收货地址'
+        return "收货地址"
 
     def save(self, *args, **kwargs):
         """
@@ -91,5 +98,7 @@ class Address(models.Model):
         if not Address.objects.filter(user=self.user).exists():
             self.is_default = True
         if self.is_default:
-            Address.objects.filter(user=self.user, is_default=True).exclude(pk=self.pk).update(is_default=False)
+            Address.objects.filter(user=self.user, is_default=True).exclude(
+                pk=self.pk
+            ).update(is_default=False)
         super().save(*args, **kwargs)

@@ -23,10 +23,14 @@ def index(request, category_slug=None):
         basket.save()
         return JsonResponse({"qty": len(basket)})
     else:
-        page_num = request.GET.get('page', 1)
-        is_discount = request.GET.get('discount')
-        categories = Category.objects.filter(parent=None).prefetch_related('children')
-        products = Product.products.select_related('category').prefetch_related('product_image').all()
+        page_num = request.GET.get("page", 1)
+        is_discount = request.GET.get("discount")
+        categories = Category.objects.filter(parent=None).prefetch_related("children")
+        products = (
+            Product.products.select_related("category")
+            .prefetch_related("product_image")
+            .all()
+        )
         active_category = None
         if category_slug:
             active_category = get_object_or_404(Category, slug=category_slug)
@@ -54,12 +58,16 @@ def product_detail(request, category, product):
     商品详情页
     """
     product = get_object_or_404(
-        Product.objects.prefetch_related('product_image'), 
-        slug=product
-        )
+        Product.objects.prefetch_related("product_image"), slug=product
+    )
     if product.stock > 0:
         category = get_object_or_404(Category, slug=category)
-        context = {"product": product, "category": category}
+        is_in_wishlist = product.user_wishlist.filter(id=request.user.id).exists()
+        context = {
+            "product": product,
+            "category": category,
+            "is_in_wishlist": is_in_wishlist,
+        }
         return render(request, "store/detail.html", context)
     else:
         return render(request, "store/detail_404.html", status=404)
