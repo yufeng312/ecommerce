@@ -59,12 +59,12 @@
           <div class="p-3 bg-light rounded-3">
             <div class="row g-2 mb-2">
               <div class="col-sm-3 text-muted">收货人：</div>
-              <div class="col-sm-9 fw-bold">{{ order.user.username }}</div>
+              <div class="col-sm-9 fw-bold">{{ order.recipient_name }}</div>
             </div>
             {% if order.user.phone %}
             <div class="row g-2 mb-2">
               <div class="col-sm-3 text-muted">联系电话：</div>
-              <div class="col-sm-9 fw-bold">{{ order.user.phone }}</div>
+              <div class="col-sm-9 fw-bold">{{ order.recipient_phone }}</div>
             </div>
             {% endif %}
             <div class="row g-2 mb-2">

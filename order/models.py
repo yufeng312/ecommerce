@@ -20,6 +20,8 @@ class Order(models.Model):
         default=StatusChoices.PENDING_PAY,
         verbose_name="订单状态",
     )
+    recipient_name = models.CharField(max_length=50, verbose_name="收件人姓名", blank=False)
+    recipient_phone = models.CharField(max_length=11, verbose_name="收件人手机号", blank=False)
     address = models.CharField(max_length=255, blank=False, verbose_name="收货地址")
     total_price = models.DecimalField(
         max_digits=10, decimal_places=2, null=False, verbose_name="商品总价"

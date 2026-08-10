@@ -14,22 +14,82 @@
         <div class="col-lg-8">
           <div class="card mb-4 border-0 shadow-sm">
             <div class="card-body p-4">
-              <h5 class="fw-bold mb-3 d-flex align-items-center">
-                <i class="bi-geo-alt-fill text-danger me-2"></i> 收货人信息
-              </h5>
-              <div class="p-3 bg-light rounded border-start border-danger border-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-bold fs-6">{{ user.username }}</span>
-                  {% if user.phone %}
-                  <span class="text-muted fw-bold">{{ user.phone }}</span>
-                  {% else %}
-                  <a href="{% url 'account:dashboard' %}" class="text-danger small fw-bold text-decoration-none">
-                    <i class="bi-exclamation-circle-fill me-1"></i>请先绑定手机号
-                  </a>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi-geo-alt-fill text-danger me-2"></i> 收货人信息
+                </h5>
+                <div>
+                  {% if addresses %}
+                  <button type="button" class="btn btn-link text-danger text-decoration-none p-0 me-3 small fw-bold"
+                    data-bs-toggle="modal" data-bs-target="#addressModal">
+                    <i class="bi bi-arrow-repeat me-1"></i>切换地址
+                  </button>
                   {% endif %}
+                  <a href="{% url 'account:address_add' %}" class="text-secondary text-decoration-none small">
+                    <i class="bi bi-plus-lg me-1"></i>新增地址
+                  </a>
                 </div>
-                <p class="mb-0 text-secondary">{{ address }}</p>
               </div>
+              {% if addresses %}
+              <input type="hidden" name="address_id" id="selected-address-id" value="{{ default_address.id }}">
+              <div class="p-3 bg-light rounded border-start border-danger border-3" id="current-address-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-bold fs-6" id="display-receiver-name">{{ default_address.name }}</span>
+                  <span class="text-muted fw-bold" id="display-receiver-phone">{{ default_address.phone }}</span>
+                </div>
+                <p class="mb-0 text-secondary" id="display-receiver-address">
+                  {{ default_address.province }} {{ default_address.city }} {{ default_address.district }}
+                  {{ default_address.detail_address }}
+                </p>
+              </div>
+              <div class="modal fade" id="addressModal" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title fw-bold" id="addressModalLabel">选择收货地址</h6>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                      <div class="list-group list-group-flush">
+                        {% for addr in addresses %}
+                        <label
+                          class="list-group-item list-group-item-action d-flex align-items-center p-3 gap-3 border-bottom cursor-pointer">
+                          <!-- Radio 单选框：将数据绑定在 data-* 属性上，方便 JS 读取 -->
+                          <input class="form-check-input flex-shrink-0 modal-address-radio" type="radio"
+                            name="modal_address_choice" value="{{ addr.id }}" data-name="{{ addr.name }}"
+                            data-phone="{{ addr.phone }}"
+                            data-address="{{ addr.province }} {{ addr.city }} {{ addr.district }} {{ addr.detail_address }}"
+                            {% if addr.id == default_address.id %}checked{% endif %}>
+                          <div class="w-100">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                              <span class="fw-bold fs-6 text-dark">{{ addr.name }}</span>
+                              <span class="text-muted small fw-bold">{{ addr.phone }}</span>
+                            </div>
+                            <div class="text-secondary small">{{ addr.province }} {{ addr.city }} {{ addr.district }}
+                              {{ addr.detail_address }}</div>
+                          </div>
+                        </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+                      <button type="button" class="btn btn-danger btn-sm px-4 rounded-pill"
+                        id="confirm-address-btn">确认选择</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              <div class="p-4 bg-light rounded text-center" style="border: 1px dashed #dc3545;">
+                <p class="text-muted mb-3">
+                  <i class="bi-exclamation-circle-fill text-danger me-1"></i> 您还没有添加收货地址，请先添加后再结算
+                </p>
+                <a href="{% url 'account:address_add' %}" class="btn btn-danger px-4 py-2">
+                  <i class="bi-plus-lg me-1"></i> 新增收货地址
+                </a>
+              </div>
+              {% endif %}
             </div>
           </div>
           <div class="card mb-4 border-0 shadow-sm">
@@ -82,13 +142,13 @@
             <h4 class="fw-bolder mb-4">费用明细</h4>
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted">商品总价</span>
-              <span class="text-dark">¥{{ basket.total_price }}</span>
+              <span class="text-dark">¥{{ basket.payment_price }}</span>
             </div>
             {% if product.is_discount %}
-              <div class="d-flex justify-content-between mb-3">
-                <span class="text-muted">限时优惠</span>
-                <span class="text-success fw-bold">-¥{{ basket.discount_price }}</span>
-              </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">限时优惠</span>
+              <span class="text-success fw-bold">-¥{{ basket.discount_price }}</span>
+            </div>
             {% endif %}
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted">运费</span>
@@ -116,3 +176,4 @@
   </form>
 </section>
 {% endblock content %}
+{% block extra_js %}<script src="{% static 'order/js/order.js' %}"></script>{% endblock %}

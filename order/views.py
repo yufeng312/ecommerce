@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from basket.basket import Basket
 from store.models import Product
-
+from account.models import Address
 from .models import Order, OrderItem
 
 
@@ -19,9 +19,10 @@ def order_confirm(request):
     进入订单确认页
     """
     basket = Basket(request)
-    address = "山东省青岛市李沧区XXXX"
+    addresses = Address.objects.filter(user=request.user)
+    default_address = (addresses.filter(is_default=True).first() or addresses.first())
     user = request.user
-    context = {"basket": basket, "address": address, "user": user}
+    context = {"basket": basket, "addresses": addresses, "user": user, "default_address": default_address}
     return render(request, "order/order_confirm.html", context=context)
 
 
@@ -38,8 +39,12 @@ def order_create(request):
         messages.error(request, "您的购物车空空如也,无法下单")
         return redirect("basket:basket_summary")
 
-    address = request.POST.get("order-address", "")
+    address_id = request.POST.get("address_id", "")
     note = request.POST.get("order-note", "")
+    address_obj = get_object_or_404(Address, id=address_id)
+    recipient_name = str(address_obj.name)
+    recipient_phone = str(address_obj.phone)
+    address = str(address_obj.province) + str(address_obj.city) + str(address_obj.district) + str(address_obj.detail_address)
 
     now_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     user_id_str = str(request.user.id).zfill(5)
@@ -52,7 +57,9 @@ def order_create(request):
                 user=request.user,
                 order_sn=order_sn,
                 status=10,  # 待付款
-                address=str(address),
+                recipient_name=recipient_name,
+                recipient_phone=recipient_phone,
+                address=address,
                 total_price=basket.total_price,
                 freight=basket.freight,
                 discount_price=basket.discount_price,
@@ -101,7 +108,7 @@ def order_create(request):
                         total_price=item["total_price"],
                     )
                 )
-            # 批量更新,优化更新次数
+            # bulk_update批量更新,优化更新次数
             Product.objects.bulk_update(product_update_list, fields=["stock"])
             OrderItem.objects.bulk_create(order_items_crete_list)
 
