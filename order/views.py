@@ -1,15 +1,21 @@
 import datetime
 import random
+from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
+from account.models import Address
 from basket.basket import Basket
 from store.models import Product
-from account.models import Address
+from utils.alipay import get_alipay_client
+
 from .models import Order, OrderItem
 
 
@@ -20,9 +26,14 @@ def order_confirm(request):
     """
     basket = Basket(request)
     addresses = Address.objects.filter(user=request.user)
-    default_address = (addresses.filter(is_default=True).first() or addresses.first())
+    default_address = addresses.filter(is_default=True).first() or addresses.first()
     user = request.user
-    context = {"basket": basket, "addresses": addresses, "user": user, "default_address": default_address}
+    context = {
+        "basket": basket,
+        "addresses": addresses,
+        "user": user,
+        "default_address": default_address,
+    }
     return render(request, "order/order_confirm.html", context=context)
 
 
@@ -44,7 +55,12 @@ def order_create(request):
     address_obj = get_object_or_404(Address, id=address_id)
     recipient_name = str(address_obj.name)
     recipient_phone = str(address_obj.phone)
-    address = str(address_obj.province) + str(address_obj.city) + str(address_obj.district) + str(address_obj.detail_address)
+    address = (
+        str(address_obj.province)
+        + str(address_obj.city)
+        + str(address_obj.district)
+        + str(address_obj.detail_address)
+    )
 
     now_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     user_id_str = str(request.user.id).zfill(5)
@@ -121,26 +137,77 @@ def order_create(request):
         return redirect("basket:basket_summary")
 
     basket.clear()
-    return render(request, "order/order_payment.html", {"order_sn": order_sn})
+    return redirect("order:alipay_pay", order_sn=order_sn)
 
 
 @login_required
-def order_payment(request, order_sn):
+def alipay_pay_view(request, order_sn):
     """
-    付款成功时,修改订单状态
+    跳转至支付宝支付页面
     """
     order = get_object_or_404(Order, order_sn=order_sn, user=request.user)
 
-    # 在订单状态是10(未付款)时,修改成20(已付款)
-    if order.status == 10:
-        order.status = 20
-        order.payment_time = timezone.now()  # 记录付款时间
-        order.save()
-        messages.success(request, f"订单{order_sn}支付成功!")
-    else:
-        messages.warning(request, "该订单不需要重复支付")
+    try:
+        alipay = get_alipay_client()
+    except Exception as e:
+        messages.error(request, "系统繁忙,请稍后重试")
+        return HttpResponse("支付宝初始化失败", status=500)
+    order_string = alipay.api_alipay_trade_page_pay(
+        subject=f"吃糖网商品订单_{order_sn}",
+        out_trade_no=str(order_sn),
+        total_amount=float(order.payment_price),
+        return_url=settings.ALIPAY_RETURN_URL,
+        notify_url=settings.ALIPAY_NOTIFY_URL,
+    )
+    pay_url = f"{settings.ALIPAY_GATEWAY_URL}?{order_string}"
+    return redirect(pay_url)
 
-    return redirect("order:order_detail", order_sn=order_sn)
+
+def alipay_return(request):
+    data = request.GET.dict()
+    signature = data.pop("sign", None)
+    alipay = get_alipay_client()
+    success = alipay.verify(data, signature)
+
+    if success:
+        context = {
+            "out_trade_no": data.get("out_trade_no"),  # 我方订单号
+            "trade_no": data.get("trade_no"),  # 支付宝流水号
+            "total_amount": data.get("total_amount"),  # 交易金额
+        }
+        return render(request, "order/pay_success.html", context=context)
+    else:
+        return HttpResponse("支付校验失败", status=400)
+
+
+@csrf_exempt
+def alipay_notify(request):
+    if request.method == "POST":
+        data = request.POST.dict()
+        signature = data.pop("sign", None)
+        alipay = get_alipay_client()
+        success = alipay.verify(data, signature)
+        trade_status = data.get("trade_status")
+        if success and trade_status in ["TRADE_SUCCESS", "TRADE_FINISHED"]:
+            out_trade_no = data.get("out_trade_no")  # 商家订单号
+            trade_no = data.get("trade_no")  # 支付宝交易号
+            total_amount = data.get("total_amount")  # 支付宝返回的实际金额
+            try:
+                order = Order.objects.get(order_sn=out_trade_no)
+                # 用Decimal而不用float,避免精度丢失
+                if Decimal(str(order.payment_price)) == Decimal(str(total_amount)):
+                    if order.status >= 20:
+                        return HttpResponse("success")
+                    if order.status == 10:
+                        with transaction.atomic():
+                            order.status = 20
+                            order.trade_no = trade_no
+                            order.payment_time = timezone.now()
+                            order.save()
+                        return HttpResponse("success")
+            except Order.DoesNotExist:
+                pass
+        return HttpResponse("fail")
 
 
 @login_required

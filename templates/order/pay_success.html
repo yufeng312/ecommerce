@@ -1,0 +1,55 @@
+{% extends "../base.html" %}
+{% block title %}支付成功 - 吃糖网{% endblock title %}
+
+{% block header_title %}
+<i class="bi bi-check-circle-fill text-success me-2"></i>支付成功
+{% endblock header_title %}
+{% block header_subtitle %}
+订单支付完成，商家正在为您紧张准备商品，请耐心等待发货
+{% endblock header_subtitle %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container px-4 px-lg-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm p-4 p-md-5 text-center">
+          <div class="mb-3">
+            <i class="bi bi-patch-check-fill text-success opacity-75" style="font-size: 4.5rem;"></i>
+          </div>
+          <h3 class="fw-bold text-dark mb-2">付款成功！</h3>
+          <p class="text-muted small mb-4">感谢您的支持，系统已成功接收您的订单款项。</p>
+          <div class="bg-light p-3 p-md-4 rounded-3 text-start mb-4 border border-light-subtle">
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary-subtle">
+              <span class="text-muted small">
+                <i class="bi bi-receipt me-1"></i>商户订单号
+              </span>
+              <span class="fw-semibold text-dark small font-monospace">{{ out_trade_no }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary-subtle">
+              <span class="text-muted small">
+                <i class="bi bi-alipay text-primary me-1"></i>支付宝交易号
+              </span>
+              <span class="fw-semibold text-dark small font-monospace">{{ trade_no }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-2">
+              <span class="text-muted small">
+                <i class="bi bi-credit-card-2-front me-1"></i>实付金额
+              </span>
+              <span class="text-danger fw-bold fs-5">¥{{ total_amount }}</span>
+            </div>
+          </div>
+          <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+            <a href="{% url 'account:dashboard' %}" class="btn btn-outline-dark px-4 py-2 fw-semibold">
+              <i class="bi bi-person-circle me-1"></i>个人中心 / 订单
+            </a>
+            <a href="{% url 'store:index' %}" class="btn btn-dark px-4 py-2 fw-semibold">
+              <i class="bi bi-bag-heart me-1"></i>继续逛逛
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

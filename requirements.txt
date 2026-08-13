@@ -1,8 +1,10 @@
 asgiref==3.8.1
 backports.zoneinfo==0.2.1
 black==24.8.0
+cffi==1.17.1
 click==8.1.8
 colorama==0.4.6
+cryptography==47.0.0
 Django==3.2.25
 django-debug-toolbar==3.8.1
 django-js-asset==2.2.0
@@ -13,7 +15,11 @@ packaging==26.2
 pathspec==0.12.1
 pillow==10.4.0
 platformdirs==4.3.6
+pycparser==2.23
+pycryptodomex==3.23.0
 pymysql==1.1.2
+pyopenssl==26.2.0
+python-alipay-sdk==3.4.0
 pytz==2026.2
 six==1.17.0
 sqlparse==0.5.5

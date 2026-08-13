@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -6,7 +7,7 @@ SECRET_KEY = "django-insecure-dovs_dc8h5u*!zdhc49e#t($1d)si&z2lv&1#8k-ef&fh1o++o
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -112,6 +113,21 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # 配置Basket session ID
 BASKET_SESSION_ID = "basket"
+
+# 配置ALIPAY
+ALIPAY_APP_ID = "9021000166675629"
+ALIPAY_DEBUG = True
+ALIPAY_APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, "keys", "app_private_key.pem")
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, "keys", "alipay_public_key.pem")
+
+# 网关地址
+ALIPAY_GATEWAY_URL = "https://openapi-sandbox.dl.alipaydev.com/gateway.do"
+
+# 支付完成后的跳转地址
+ALIPAY_RETURN_URL = "http://127.0.0.1:8000/order/alipay/return/"
+
+# 推送支付结果的地址(上线时换成对应的地址)
+ALIPAY_NOTIFY_URL = "http://127.0.0.1:8000/order/alipay/notify/"
 
 # 配置debug-toolbar
 if DEBUG:
