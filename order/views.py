@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +17,7 @@ from store.models import Product
 from utils.alipay import get_alipay_client
 
 from .models import Order, OrderItem
+from .tasks import cancel_unpaid_order_task
 
 
 @login_required
@@ -136,8 +137,11 @@ def order_create(request):
         print(e)
         return redirect("basket:basket_summary")
 
-    basket.clear()
-    return redirect("order:alipay_pay", order_sn=order_sn)
+    if order:
+        cancel_unpaid_order_task.apply_async(args=[order.order_sn], countdown=1800)
+        basket.clear()
+        return redirect("order:alipay_pay", order_sn=order_sn)
+    return redirect("basket:basket_summary")
 
 
 @login_required

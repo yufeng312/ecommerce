@@ -129,6 +129,14 @@ ALIPAY_RETURN_URL = "http://127.0.0.1:8000/order/alipay/return/"
 # 推送支付结果的地址(上线时换成对应的地址)
 ALIPAY_NOTIFY_URL = "http://127.0.0.1:8000/order/alipay/notify/"
 
+# 配置Celery
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"  # 消息中间件使用redis的数据库0
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"  # 任务执行结果使用redis的数据库1
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
 # 配置debug-toolbar
 if DEBUG:
     INTERNAL_IPS = [
