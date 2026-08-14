@@ -1,7 +1,8 @@
 import json
 
+from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 
 from basket.basket import Basket
@@ -25,7 +26,15 @@ def index(request, category_slug=None):
     else:
         page_num = request.GET.get("page", 1)
         is_discount = request.GET.get("discount")
-        categories = Category.objects.filter(parent=None).prefetch_related("children")
+        # 判断是否是纯首页数据
+        is_default_index = (
+            category_slug is None and is_discount != 'true' and str(page_num) == '1'
+        )
+        if is_default_index:
+            cache_key = 'store_index_default_list'
+            cached_context = cache.get(cache_key)
+            if cached_context:
+                return render(request, 'store/index.html', cached_context)
         products = (
             Product.products.select_related("category")
             .prefetch_related("product_image")
@@ -40,16 +49,20 @@ def index(request, category_slug=None):
             products = products.filter(is_discount=True)
         paginator = Paginator(products, 16)
         products = paginator.get_page(page_num)
-        page_range = paginator.get_elided_page_range(
-            products.number, on_each_side=3, on_ends=2
+        page_range = list(
+            paginator.get_elided_page_range(
+                products.number, on_each_side=3, on_ends=2
+            )
         )
         context = {
-            "categories": categories,
             "products": products,
             "active_category": active_category,
             "page_range": page_range,
             "is_discount": is_discount,
         }
+        # 将缓存存入redis
+        if is_default_index:
+            cache.set('store_index_default_list', context, timeout=3600)
         return render(request, "store/index.html", context)
 
 
