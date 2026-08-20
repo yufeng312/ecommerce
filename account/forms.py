@@ -74,7 +74,7 @@ class RegistrationForm(forms.ModelForm):
 
     def clean_password(self):
         password = self.cleaned_data["password"]
-        if not re.match("^(?=.*[A-Za-z])(?=.*[\d])[A-Za-z\d]{8,20}$", password):
+        if not re.match(r"^(?=.*[A-Za-z])(?=.*[\d])[A-Za-z\d]{8,20}$", password):
             raise forms.ValidationError("密码必须由字母和数字组成,长度在8-20位之间")
         return password
 
