@@ -28,13 +28,20 @@ def index(request, category_slug=None):
         is_discount = request.GET.get("discount")
         # 判断是否是纯首页数据
         is_default_index = (
-            category_slug is None and is_discount != 'true' and str(page_num) == '1'
+            category_slug is None and is_discount != "true" and str(page_num) == "1"
         )
+        user_wishlist_ids = set()
+        if request.user.is_authenticated:
+            # flat=True让查询出的元组列表变成直接的id列表
+            user_wishlist_ids = set(
+                request.user.user_wishlist.values_list("id", flat=True)
+            )
         if is_default_index:
-            cache_key = 'store_index_default_list'
+            cache_key = "store_index_default_list"
             cached_context = cache.get(cache_key)
             if cached_context:
-                return render(request, 'store/index.html', cached_context)
+                cached_context["user_wishlist_ids"] = user_wishlist_ids
+                return render(request, "store/index.html", cached_context)
         products = (
             Product.products.select_related("category")
             .prefetch_related("product_image")
@@ -50,9 +57,7 @@ def index(request, category_slug=None):
         paginator = Paginator(products, 16)
         products = paginator.get_page(page_num)
         page_range = list(
-            paginator.get_elided_page_range(
-                products.number, on_each_side=3, on_ends=2
-            )
+            paginator.get_elided_page_range(products.number, on_each_side=3, on_ends=2)
         )
         context = {
             "products": products,
@@ -62,7 +67,8 @@ def index(request, category_slug=None):
         }
         # 将缓存存入redis
         if is_default_index:
-            cache.set('store_index_default_list', context, timeout=3600)
+            cache.set("store_index_default_list", context, timeout=3600)
+        context["user_wishlist_ids"] = user_wishlist_ids
         return render(request, "store/index.html", context)
 
 

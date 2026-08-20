@@ -65,7 +65,7 @@
                 <a href="{% url 'account:wishlist_add' product.id %}" 
                   class="btn btn-sm btn-outline-danger px-2 py-1" 
                   title="添加到心愿单">
-                  {% if request.user.is_authenticated and product in request.user.user_wishlist.all %}
+                  {% if request.user.is_authenticated and product.id in user_wishlist_ids %}
                     <i class="bi bi-heart-fill fs-6"></i>
                   {% else %}
                     <i class="bi bi-heart fs-6"></i>

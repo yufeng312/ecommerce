@@ -2,6 +2,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnPlusList = document.querySelectorAll('.btn-plus');
     const btnMinusList = document.querySelectorAll('.btn-minus');
 
+    // 更新购物车的商品数量
+    function updateBasketQty() {
+        const basketQty = document.getElementById('basket-qty');
+        if (!basketQty) return;
+        let totalQty = 0;
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            totalQty += parseInt(input.value) || 0;
+        });
+        basketQty.textContent = totalQty;
+    }
+
     // 点击加号,数量加1
     btnPlusList.forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -9,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let currentValue = parseInt(inputQuantity.value) || 1;
             inputQuantity.value = currentValue + 1;
             updateBasket(inputQuantity);
+            updateBasketQty()
         });
     });
 
@@ -20,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (currentValue > 1) {
                 inputQuantity.value = currentValue - 1;
                 updateBasket(inputQuantity);
+                updateBasketQty()
             }
         });
     });
@@ -33,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 input.value = 1;
             }
             updateBasket(input);
+            updateBasketQty()
         });
     });
 
@@ -121,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                     calculateTotalPrice();
+                    updateBasketQty()
                 }
             } catch (error) {
                 console.log(error)

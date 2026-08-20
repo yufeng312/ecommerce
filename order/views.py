@@ -86,7 +86,7 @@ def order_create(request):
             product_ids = [int(pk) for pk in basket.basket.keys()]
             # 加锁,防止超库存
             products = (
-                Product.objects.select_for_update()
+                Product.products.select_for_update()
                 .filter(pk__in=product_ids)
                 .prefetch_related("product_image")
                 .order_by("id")
@@ -210,7 +210,7 @@ def alipay_notify(request):
                             order.save()
                         return HttpResponse("success")
             except Order.DoesNotExist:
-                pass
+                return HttpResponse("fail")
         return HttpResponse("fail")
 
 

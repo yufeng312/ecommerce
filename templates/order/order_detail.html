@@ -35,10 +35,9 @@
           </div>
           <div class="d-flex gap-2">
             {% if order.status == 10 %}
-            <button class="btn btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal"
-              data-bs-target="#quickPayModal">
+            <a href="{% url 'order:alipay_pay' order.order_sn %}" class="btn btn-danger px-4 fw-bold shadow-sm" >
               <i class="bi bi-credit-card-2-front-fill me-1"></i> 去付款
-            </button>
+            </a>
             <a href="{% url 'order:order_cancel' order.order_sn %}" class="btn btn-outline-secondary"
               onclick="return confirm('确定要取消这笔订单吗？');">
               取消订单
@@ -168,30 +167,4 @@
     </div>
   </div>
 </div>
-{% if order.status == 10 %}
-<div class="modal fade" id="quickPayModal" tabindex="-1" aria-labelledby="quickPayModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-dark text-white border-0 py-3">
-        <h5 class="modal-title fw-bold" id="quickPayModalLabel"><i
-            class="bi bi-shield-lock-fill text-warning me-2"></i>吃糖网安全收银台</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body p-4 text-center bg-light">
-        <p class="text-muted mb-1 small text-uppercase">本次交易应付金额</p>
-        <h2 class="fw-bolder text-danger mb-3">¥{{ order.payment_price }}</h2>
-        <div class="alert alert-warning py-2 mb-4 small text-start">
-          <i class="bi bi-info-circle-fill me-1"></i> 您正在通过开发者沙箱支付通道进行模拟付款，点击下方按钮即刻模拟真实扣除库存和支付逻辑。
-        </div>
-        <div class="d-grid gap-2">
-          <a href="{% url 'order:order_payment' order.order_sn %}" class="btn btn-danger py-3 fw-bold fs-6 shadow-sm">
-            确认模拟支付
-          </a>
-          <button type="button" class="btn btn-outline-secondary py-2" data-bs-dismiss="modal">暂不付款</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
 {% endblock %}

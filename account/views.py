@@ -37,7 +37,7 @@ def dashboard(request):
         try:
             orders_query = orders_query.filter(status=int(status))
         except ValueError:
-            pass
+            status = "all"
     paginator = Paginator(orders_query, 5)
     orders = paginator.get_page(page_number)
     unpaid_count = Order.objects.filter(user=request.user, status=10).count()
